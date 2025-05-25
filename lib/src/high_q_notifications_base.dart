@@ -14,6 +14,19 @@ import 'models/notification_info.dart';
 import 'models/android_config.dart';
 import 'models/ios_config.dart';
 
+@pragma('vm:entry-point')
+void notificationTapBackground(NotificationResponse notificationResponse) {
+  if (notificationResponse.payload != null) {
+    final message = RemoteMessage.fromMap(
+      jsonDecode(notificationResponse.payload!),
+    );
+    _HighQNotificationsState._notificationHandler(
+      message,
+      appState: AppState.background,
+    );
+  }
+}
+
 class HighQNotifications extends StatefulWidget {
   static bool enableLogs = !kReleaseMode;
 
@@ -563,7 +576,7 @@ class _HighQNotificationsState extends State<HighQNotifications> {
     try {
       await _flutterLocalNotificationsPlugin!.initialize(
         initializationSettings,
-        onDidReceiveBackgroundNotificationResponse: (details) {},
+        onDidReceiveBackgroundNotificationResponse: notificationTapBackground,
         onDidReceiveNotificationResponse: (details) {
           if (details.notificationResponseType !=
               NotificationResponseType.selectedNotification) {
