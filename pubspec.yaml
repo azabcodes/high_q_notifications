@@ -1,7 +1,7 @@
 name: high_q_notifications
 description: Package handles the notifications .
 
-version: 1.0.0
+version: 1.0.1
 homepage: https://github.com/azabcodes/high_q_notifications
 
 environment:
