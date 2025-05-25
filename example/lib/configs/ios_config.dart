@@ -6,6 +6,6 @@ final IosConfigModel iosConfig = IosConfigModel(
     return true;
   },
   soundGetter: (RemoteMessage remoteMessage) {
-    return 'elevator.caf';
+    return 'notification_sound.caf';
   },
 );
