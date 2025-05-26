@@ -1,15 +1,13 @@
-import 'dart:io';
 
-import 'package:flutter/foundation.dart';
+import 'dart:io';
 
 void main() {
   final manifestPath = 'android/app/src/main/AndroidManifest.xml';
   final file = File(manifestPath);
 
   if (!file.existsSync()) {
-    if (kDebugMode) {
-      print('❌ AndroidManifest.xml not found at $manifestPath');
-    }
+    print('❌ AndroidManifest.xml not found at $manifestPath');
+
     return;
   }
 
@@ -60,19 +58,12 @@ void main() {
         insertAt,
         '\n$metaDataAndIntent',
       );
-      if (kDebugMode) {
-        print('✅ Added meta-data and intent-filter');
-      }
+      print('✅ Added meta-data and intent-filter');
     }
   } else {
-    if (kDebugMode) {
-      print('ℹ️ Meta-data and intent-filter already exist');
-    }
+    print('ℹ️ Meta-data and intent-filter already exist');
   }
 
   file.writeAsStringSync(content);
-  if (kDebugMode) {
-    print('🎉 AndroidManifest.xml updated successfully!');
-  }
+  print('🎉 AndroidManifest.xml updated successfully!');
 }
-

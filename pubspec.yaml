@@ -23,8 +23,6 @@ dependencies:
   args: ^2.7.0
 
 
-executables:
-  setup_notifications: bin/setup_notifications.dart
 
 
 dev_dependencies:
