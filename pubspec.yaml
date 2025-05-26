@@ -1,5 +1,9 @@
 name: high_q_notifications
-description: Package handles the notifications .
+description:
+  A Flutter package that handles push notifications efficiently using Firebase Messaging and
+  local notifications. Supports background message handling, scheduling notifications,
+  and offers utilities for timezone management and dependency injection.
+
 
 version: 1.0.2
 homepage: https://github.com/azabcodes/high_q_notifications
@@ -22,17 +26,13 @@ dependencies:
   timezone: ^0.10.1
   args: ^2.7.0
 
-
 executables:
-  high_q_notifications_cli: cli/bin/cli.dart
+  cli: cli.dart
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^5.0.0
 
-
-# The following section is specific to Flutter packages.
 flutter:
   generate: true
-
