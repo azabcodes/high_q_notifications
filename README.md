@@ -7,7 +7,8 @@ and offers utilities for timezone management and dependency injection.
 ---
 
 ## Installation
-Quickest way to add the package and enable cli  
+
+Quickest way to add the package and enable cli
 
 ```bash
 flutter pub add high_q_notifications
@@ -43,9 +44,6 @@ After activation, you can run the CLI command:
 hq_notify
 ```
 
-
-depending on your shell configuration.
-
 ---
 
 ## Summary
@@ -57,7 +55,3 @@ depending on your shell configuration.
 
 ---
 
-
-dart pub publish --dry-run
-dart pub publish
-dart run ../bin/setup_notifications.dart

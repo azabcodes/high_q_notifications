@@ -236,10 +236,10 @@ packages:
     dependency: "direct main"
     description:
       name: high_q_notifications
-      sha256: "0c45ca33a2236260dafb1bc472071f562a664d8485579cadd63e176addb474ae"
+      sha256: e94b57da42179b0008c3c82c9c4399402d23cc94133ed51c9f2d281687333ad0
       url: "https://pub.dev"
     source: hosted
-    version: "1.0.3"
+    version: "1.0.4"
   http:
     dependency: transitive
     description:
