@@ -27,7 +27,8 @@ dependencies:
   args: ^2.7.0
 
 executables:
-  cli: cli.dart
+  cli: setup_notifications
+
 
 dev_dependencies:
   flutter_test:
