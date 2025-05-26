@@ -1,7 +1,7 @@
 name: high_q_notifications
 description: Package handles the notifications .
 
-version: 1.0.1
+version: 1.0.2
 homepage: https://github.com/azabcodes/high_q_notifications
 
 environment:
@@ -21,6 +21,12 @@ dependencies:
   equatable: ^2.0.7
   get_it: ^8.0.3
   timezone: ^0.10.1
+  args: ^2.7.0
+
+
+executables:
+  setup_notifications: bin/setup_notifications.dart
+
 
 dev_dependencies:
   flutter_test:
