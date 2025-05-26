@@ -5,7 +5,7 @@ description:
   and offers utilities for timezone management and dependency injection.
 
 
-version: 1.0.3
+version: 1.0.4
 homepage: https://github.com/azabcodes/high_q_notifications
 
 environment:
@@ -27,7 +27,9 @@ dependencies:
   args: ^2.7.0
 
 executables:
-  cli: setup_notifications
+  hq_notify: setup_notifications
+
+
 
 
 dev_dependencies:

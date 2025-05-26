@@ -12,7 +12,7 @@ Quickest way to add the package and enable cli
 ```bash
 flutter pub add high_q_notifications
 dart pub global activate high_q_notifications
-setup_notifications
+hq_notify
 ```
 
 ### Add to your Flutter project
@@ -40,14 +40,9 @@ dart pub global activate high_q_notifications
 After activation, you can run the CLI command:
 
 ```bash
-setup_notifications
+hq_notify
 ```
 
-or simply:
-
-```bash
-setup_notifications
-```
 
 depending on your shell configuration.
 
