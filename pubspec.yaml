@@ -23,7 +23,8 @@ dependencies:
   args: ^2.7.0
 
 
-
+executables:
+  high_q_notifications_cli: cli/bin/cli.dart
 
 dev_dependencies:
   flutter_test:
