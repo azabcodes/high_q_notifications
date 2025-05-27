@@ -183,7 +183,7 @@ packages:
     source: hosted
     version: "5.0.0"
   flutter_local_notifications:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: flutter_local_notifications
       sha256: b94a50aabbe56ef254f95f3be75640f99120429f0a153b2dc30143cffc9bfdf3

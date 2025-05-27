@@ -110,7 +110,7 @@ void main() {
     }
   }
 
-  /// ========== iOS Configuration ==========
+  /// ========== iOS Configuration (Info.plist) ==========
   final plistPath = 'ios/Runner/Info.plist';
   final plistFile = File(plistPath);
 
@@ -156,6 +156,58 @@ void main() {
     if (updated) {
       plistFile.writeAsStringSync(plistContent);
       print('🎉 Info.plist updated successfully!');
+    }
+  }
+
+  /// ========== iOS Configuration (AppDelegate.swift) ==========
+  final appDelegatePath = 'ios/Runner/AppDelegate.swift';
+  final appDelegateFile = File(appDelegatePath);
+
+  if (!appDelegateFile.existsSync()) {
+    print('❌ AppDelegate.swift not found at $appDelegatePath');
+  } else {
+    var appDelegateContent = appDelegateFile.readAsStringSync();
+
+    if (appDelegateContent.contains('FirebaseApp.configure()')) {
+      print('ℹ️ Firebase setup already present in AppDelegate.swift');
+    } else {
+      final newAppDelegateCode = '''
+import UIKit
+import Flutter
+import flutter_local_notifications
+import Firebase
+import FirebaseCore
+
+@main
+@objc class AppDelegate: FlutterAppDelegate {
+
+  override func application(
+    _ application: UIApplication,
+    didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
+  ) -> Bool {
+
+    // Configure Firebase
+    FirebaseApp.configure()
+
+    // Setup Local Notifications
+    FlutterLocalNotificationsPlugin.setPluginRegistrantCallback { (registry) in
+        GeneratedPluginRegistrant.register(with: registry)
+    }
+
+    if #available(iOS 10.0, *) {
+      UNUserNotificationCenter.current().delegate = self as? UNUserNotificationCenterDelegate
+    }
+
+    GeneratedPluginRegistrant.register(with: self)
+
+    return super.application(application, didFinishLaunchingWithOptions: launchOptions)
+  }
+
+}
+''';
+
+      appDelegateFile.writeAsStringSync(newAppDelegateCode);
+      print('✅ AppDelegate.swift updated successfully!');
     }
   }
 }
