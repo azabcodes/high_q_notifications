@@ -382,7 +382,64 @@ enum NotificationsTypes { notificationScreen }
     if (!await parentDir.exists()) {
       await parentDir.create(recursive: true);
     }
+
     await file.writeAsString(entry.value, mode: FileMode.write);
     print('✅ File written: ${entry.key}');
   }
+
+  final exportsPath = '$basePath/exports.dart';
+  final exportsFile = File(exportsPath);
+
+  const exportContent = '''
+export 'configs/android_config.dart';
+export 'configs/ios_config.dart';
+export 'utils/handle_navigation.dart';
+export 'utils/navigation_service.dart';
+export 'utils/notifications_type.dart';
+''';
+
+  await exportsFile.create(recursive: true);
+  await exportsFile.writeAsString(exportContent, mode: FileMode.write);
+  print('✅ exports.dart created or updated at $exportsPath');
+
+  final mainCopyPath = 'lib/main_notifications.dart';
+  final mainCopyFile = File(mainCopyPath);
+
+  const mainCopyContent = '''
+import 'package:flutter/material.dart';
+import 'package:high_q_notifications/high_q_notifications.dart';
+
+import 'notification_service/exports.dart';
+
+void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  runApp(
+    HighQNotifications(
+      requestPermissionsOnInitialize: true,
+      localNotificationsConfiguration: LocalNotificationsConfigurationModel(
+        androidConfig: androidConfig,
+        iosConfig: iosConfig,
+      ),
+      shouldHandleNotification: (_) => true,
+      onOpenNotificationArrive: (_) {},
+      onTap: HandleNotificationsNavigation.handleNotificationTap,
+      onFcmTokenInitialize: (token) {
+        NavigationService().fcmTokenNotifier.value = token;
+      },
+      onFcmTokenUpdate: (token) {
+        NavigationService().fcmTokenNotifier.value = token;
+      },
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        navigatorKey: NavigationService().navigatorKey,
+        scaffoldMessengerKey: NavigationService().scaffoldMessengerState,
+        home: Scaffold(appBar: AppBar(title: Text('High Q Notifications'))),
+      ),
+    ),
+  );
+}
+''';
+
+  await mainCopyFile.writeAsString(mainCopyContent, mode: FileMode.write);
+  print('✅ main_copy.dart created at $mainCopyPath');
 }
