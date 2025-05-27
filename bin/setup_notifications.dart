@@ -2,7 +2,10 @@
 
 import 'dart:io';
 
-void main() {
+Future<void> main() async {
+  await addPackageIfMissing('firebase_core');
+  await addPackageIfMissing('firebase_messaging');
+
   /// ========== Android Configuration ==========
   final manifestPath = 'android/app/src/main/AndroidManifest.xml';
   final file = File(manifestPath);
@@ -209,5 +212,29 @@ import FirebaseCore
       appDelegateFile.writeAsStringSync(newAppDelegateCode);
       print('✅ AppDelegate.swift updated successfully!');
     }
+  }
+}
+
+Future<void> addPackageIfMissing(String packageName) async {
+  final pubspecFile = File('pubspec.yaml');
+  if (!pubspecFile.existsSync()) {
+    print('❌ pubspec.yaml not found!');
+    return;
+  }
+  final content = pubspecFile.readAsStringSync();
+  if (content.contains(packageName)) {
+    print('ℹ️ $packageName already exists in pubspec.yaml');
+    return;
+  }
+
+  print('⬇️ Adding $packageName using flutter pub add...');
+  final result = await Process.run('flutter', ['pub', 'add', packageName]);
+
+  if (result.exitCode == 0) {
+    print('✅ Successfully added $packageName');
+  } else {
+    print('❌ Failed to add $packageName');
+    print(result.stdout);
+    print(result.stderr);
   }
 }
