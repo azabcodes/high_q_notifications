@@ -214,6 +214,25 @@ import FirebaseCore
       print('✅ AppDelegate.swift updated successfully!');
     }
   }
+
+  /// ========== Android raw folder & keep.xml ==========
+  final rawDir = Directory('android/app/src/main/res/raw');
+  if (!rawDir.existsSync()) {
+    rawDir.createSync(recursive: true);
+    print('✅ Created raw directory at ${rawDir.path}');
+  } else {
+    print('ℹ️ raw directory already exists');
+  }
+
+  final keepFile = File('${rawDir.path}/keep.xml');
+  if (!keepFile.existsSync()) {
+    keepFile.writeAsStringSync('''<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools"
+    tools:keep="@drawable/*,@raw/notification_sound" />''');
+    print('✅ Created keep.xml in raw directory');
+  } else {
+    print('ℹ️ keep.xml already exists in raw directory');
+  }
 }
 
 Future<void> addPackageIfMissing({required String packageName}) async {
