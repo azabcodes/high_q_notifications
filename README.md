@@ -4,6 +4,9 @@ A Flutter package that handles push notifications efficiently using Firebase Mes
 and local notifications. Supports background message handling, scheduling notifications,
 and offers utilities for timezone management and dependency injection.
 
+![20250527_1506_HighQ Notifications Banner_simple_compose_01jw8t507cen380vvfmx80w7ad](https://github.com/user-attachments/assets/8ab2c12d-fb93-4a23-87a4-12ba9d6a4a9d)
+
+
 ---
 
 ## 🚀 Installation
