@@ -235,10 +235,11 @@ packages:
   high_q_notifications:
     dependency: "direct main"
     description:
-      path: ".."
-      relative: true
-    source: path
-    version: "1.0.7"
+      name: high_q_notifications
+      sha256: a85e08b3a3e927b1967007632614291865945b1724015b1ed51d8bf827ec2397
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.8"
   http:
     dependency: transitive
     description:
