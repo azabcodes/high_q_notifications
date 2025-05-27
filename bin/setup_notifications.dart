@@ -3,8 +3,9 @@
 import 'dart:io';
 
 Future<void> main() async {
-  await addPackageIfMissing('firebase_core');
-  await addPackageIfMissing('firebase_messaging');
+  await addPackageIfMissing(packageName: 'firebase_core');
+  await addPackageIfMissing(packageName: 'firebase_messaging');
+  await createNotificationServiceFiles();
 
   /// ========== Android Configuration ==========
   final manifestPath = 'android/app/src/main/AndroidManifest.xml';
@@ -215,7 +216,7 @@ import FirebaseCore
   }
 }
 
-Future<void> addPackageIfMissing(String packageName) async {
+Future<void> addPackageIfMissing({required String packageName}) async {
   final pubspecFile = File('pubspec.yaml');
   if (!pubspecFile.existsSync()) {
     print('❌ pubspec.yaml not found!');
@@ -236,5 +237,152 @@ Future<void> addPackageIfMissing(String packageName) async {
     print('❌ Failed to add $packageName');
     print(result.stdout);
     print(result.stderr);
+  }
+}
+
+Future<void> createNotificationServiceFiles() async {
+  final basePath = 'lib/notification_service';
+
+  final files = <String, String>{
+    '$basePath/configs/android_config.dart': '''
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/material.dart';
+import 'package:high_q_notifications/high_q_notifications.dart';
+
+final AndroidConfigModel androidConfig = AndroidConfigModel(
+  channelIdGetter: (RemoteMessage remoteMessage) {
+    return '_testId';
+  },
+  channelNameGetter: (RemoteMessage remoteMessage) {
+    return 'Test App Notification';
+  },
+  colorGetter: (RemoteMessage remoteMessage) {
+    return Colors.red;
+  },
+  channelDescriptionGetter: (RemoteMessage remoteMessage) {
+    return 'This channel to allow us to send you the notifications';
+  },
+  appIconGetter: (RemoteMessage remoteMessage) {
+    return '@drawable/notification_icon';
+  },
+  soundGetter: (RemoteMessage remoteMessage) {
+    return 'notification_sound';
+  },
+  importanceGetter: (RemoteMessage remoteMessage) {
+    return HighQNotificationsImportance.max;
+  },
+  priorityGetter: (RemoteMessage remoteMessage) {
+    return HighQNotificationsPriority.max;
+  },
+  imageUrlGetter: (RemoteMessage remoteMessage) {
+    if (remoteMessage.data.containsKey('image') &&
+        remoteMessage.data['image'] != null) {
+      return remoteMessage.data['image'];
+    }
+    return null;
+  },
+);
+''',
+    '$basePath/configs/ios_config.dart': '''
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:high_q_notifications/high_q_notifications.dart';
+
+final IosConfigModel iosConfig = IosConfigModel(
+  presentSoundGetter: (RemoteMessage remoteMessage) {
+    return true;
+  },
+  soundGetter: (RemoteMessage remoteMessage) {
+    return 'notification_sound.caf';
+  },
+);
+''',
+
+    '$basePath/utils/handle_navigation.dart': '''
+import 'package:flutter/foundation.dart';
+import 'package:high_q_notifications/high_q_notifications.dart';
+import 'notifications_type.dart';
+
+class HandleNotificationsNavigation {
+  static void handleNotificationTap(NotificationInfoModel info) {
+    final payload = info.payload;
+    final appState = info.appState;
+    final firebaseMessage = info.firebaseMessage.toMap();
+
+    if (payload['type'] != null) {
+      try {
+        final notificationType = NotificationsTypes.values.firstWhere(
+          (e) => e.toString().split('.').last == payload['type'],
+        );
+
+        if (kDebugMode) {
+          print('Notification Type: \$notificationType');
+        }
+
+        switch (notificationType) {
+          case NotificationsTypes.notificationScreen:
+          /* SLServices.navigationLocator.toPage(
+              page: ScreenName(
+                id: int.tryParse(payload['id'])!,
+              ),
+            );*/
+        }
+      } catch (e) {
+        if (kDebugMode) {
+          print('Error parsing notification type: \$e');
+        }
+      }
+    }
+
+    for (var key in ['url', 'sound', 'image']) {
+      if (payload[key] != null) {
+        if (kDebugMode) {
+          print('\${key.toUpperCase()}: \${payload[key]}');
+        }
+      }
+    }
+    if (kDebugMode) {
+      print(
+        'Notification tapped with \$appState & payload \$payload. Firebase message: \$firebaseMessage',
+      );
+    }
+  }
+}
+''',
+
+    '$basePath/utils/navigation_service.dart': '''
+import 'package:flutter/material.dart';
+
+class NavigationService {
+  bool showNotification = true;
+
+  GlobalKey<NavigatorState>? _navigatorKey = GlobalKey<NavigatorState>();
+  final GlobalKey<ScaffoldMessengerState> _scaffoldMessengerStateKey =
+      GlobalKey<ScaffoldMessengerState>();
+
+  GlobalKey<ScaffoldMessengerState> get scaffoldMessengerState =>
+      _scaffoldMessengerStateKey;
+
+  ValueNotifier<String?> fcmTokenNotifier = ValueNotifier(null);
+
+  GlobalKey<NavigatorState> get navigatorKey => _navigatorKey!;
+
+  set navigatorKey(GlobalKey<NavigatorState> key) => _navigatorKey = key;
+}
+''',
+
+    '$basePath/utils/notifications_type.dart': '''
+enum NotificationsTypes { notificationScreen }
+''',
+  };
+
+  for (final entry in files.entries) {
+    final file = File(entry.key);
+    final parentDir = file.parent;
+
+    if (!await parentDir.exists()) {
+      await parentDir.create(recursive: true);
+    }
+    await file.writeAsString(entry.value, mode: FileMode.write);
+    print('✅ File written: ${entry.key}');
   }
 }

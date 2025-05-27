@@ -24,7 +24,6 @@ dependencies:
   equatable: ^2.0.7
   get_it: ^8.0.3
   timezone: ^0.10.1
-  args: ^2.7.0
 
 executables:
   high_q_notifications: setup_notifications

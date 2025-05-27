@@ -4,10 +4,10 @@ import 'package:high_q_notifications/high_q_notifications.dart';
 
 final AndroidConfigModel androidConfig = AndroidConfigModel(
   channelIdGetter: (RemoteMessage remoteMessage) {
-    return '_appId';
+    return '_testId';
   },
   channelNameGetter: (RemoteMessage remoteMessage) {
-    return 'App  Notification';
+    return 'Test App Notification';
   },
   colorGetter: (RemoteMessage remoteMessage) {
     return Colors.red;
@@ -27,7 +27,6 @@ final AndroidConfigModel androidConfig = AndroidConfigModel(
   priorityGetter: (RemoteMessage remoteMessage) {
     return HighQNotificationsPriority.max;
   },
-
   imageUrlGetter: (RemoteMessage remoteMessage) {
     if (remoteMessage.data.containsKey('image') &&
         remoteMessage.data['image'] != null) {
