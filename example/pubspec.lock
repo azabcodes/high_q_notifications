@@ -146,7 +146,7 @@ packages:
     source: hosted
     version: "2.23.0"
   firebase_messaging:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: firebase_messaging
       sha256: "38111089e511f03daa2c66b4c3614c16421b7d78c84ee04331a0a65b47df4542"
@@ -236,10 +236,10 @@ packages:
     dependency: "direct main"
     description:
       name: high_q_notifications
-      sha256: "869bfc107e5308bcb10c252edd6aa423f66f1f8bcd50bd684cc9cd83fa87410c"
+      sha256: fec2685a52dfa7146e04f2882cfd914291fccbcabe3507f448f8a27c97fc1a6f
       url: "https://pub.dev"
     source: hosted
-    version: "1.0.5"
+    version: "1.0.6"
   http:
     dependency: transitive
     description:

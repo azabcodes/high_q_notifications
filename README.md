@@ -8,40 +8,42 @@ and offers utilities for timezone management and dependency injection.
 
 ## Installation
 
-Quickest way to add the package and enable cli
+Quickest way to add the package and enable CLI:
 
 ```bash
 flutter pub add high_q_notifications
 dart pub global activate high_q_notifications
-hq_notify
+dart run high_q_notifications:create
 ```
-
-### Add to your Flutter project
-
-To add the package to your Flutter project, run:
-
-```bash
-flutter pub add high_q_notifications
-```
-
-Then import it in your Dart code and use it as needed.
 
 ---
 
-### Using the CLI tool
+## Using the CLI tool
 
-This package also provides a **command line interface (CLI)** tool for setup and management.
+This package provides a **command line interface (CLI)** tool for setup and management.
 
-To use the CLI globally on your machine, you need to activate it by running:
+You can run the CLI command directly in your project without global activation using:
+
+```bash
+dart run high_q_notifications:create
+```
+
+This will execute the notification setup process.
+
+---
+
+### (Optional) Using CLI globally
+
+If you want to activate the CLI globally on your machine for easier access:
 
 ```bash
 dart pub global activate high_q_notifications
 ```
 
-After activation, you can run the CLI command:
+Then you can run the CLI command as:
 
 ```bash
-hq_notify
+high_q_notifications:create
 ```
 
 ---
@@ -51,7 +53,7 @@ hq_notify
 | Use case                   | Command                                         |
 |----------------------------|-------------------------------------------------|
 | Add package to Flutter app | `flutter pub add high_q_notifications`          |
-| Use CLI tool globally      | `dart pub global activate high_q_notifications` |
+| Run CLI tool in project    | `dart run high_q_notifications:create`          |
+| Activate CLI globally      | `dart pub global activate high_q_notifications` |
 
 ---
-

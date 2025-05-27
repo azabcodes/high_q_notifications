@@ -5,8 +5,9 @@ description:
   and offers utilities for timezone management and dependency injection.
 
 
-version: 1.0.6
+version: 1.0.7
 homepage: https://github.com/azabcodes/high_q_notifications
+issue_tracker: https://github.com/azabcodes/high_q_notifications/issues
 
 environment:
   sdk: ^3.8.0
@@ -14,7 +15,6 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  firebase_core: ^3.13.1
   firebase_messaging: ^15.2.6
   flutter_local_notifications: ^19.2.1
   dio: ^5.8.0+1
@@ -27,8 +27,17 @@ dependencies:
   args: ^2.7.0
 
 executables:
-  hq_notify: setup_notifications
+  high_q_notifications: create
 
+
+
+
+topics:
+  - notifications
+  - push-notifications
+  - flutter-notifications
+  - firebase-messaging
+  - high-q-notifications
 
 
 
