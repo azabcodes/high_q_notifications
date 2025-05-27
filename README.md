@@ -4,7 +4,7 @@ A Flutter package that handles push notifications efficiently using Firebase Mes
 and local notifications. Supports background message handling, scheduling notifications,
 and offers utilities for timezone management and dependency injection.
 
-<img src="https://github.com/user-attachments/assets/8ab2c12d-fb93-4a23-87a4-12ba9d6a4a9d" width="400"/>
+<img src="https://github.com/user-attachments/assets/8ab2c12d-fb93-4a23-87a4-12ba9d6a4a9d" width="400" height="200"/>
 
 
 
