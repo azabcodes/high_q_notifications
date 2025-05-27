@@ -13,7 +13,7 @@ Quickest way to add the package and enable CLI:
 ```bash
 flutter pub add high_q_notifications
 dart pub global activate high_q_notifications
-dart run high_q_notifications:create
+dart run high_q_notifications:setup_notifications
 ```
 
 ---
@@ -25,7 +25,7 @@ This package provides a **command line interface (CLI)** tool for setup and mana
 You can run the CLI command directly in your project without global activation using:
 
 ```bash
-dart run high_q_notifications:create
+dart run high_q_notifications:setup_notifications
 ```
 
 This will execute the notification setup process.
@@ -43,7 +43,7 @@ dart pub global activate high_q_notifications
 Then you can run the CLI command as:
 
 ```bash
-high_q_notifications:create
+high_q_notifications:setup_notifications
 ```
 
 ---

@@ -27,7 +27,7 @@ dependencies:
   args: ^2.7.0
 
 executables:
-  high_q_notifications: create
+  high_q_notifications: setup_notifications
 
 
 
