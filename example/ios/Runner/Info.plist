@@ -54,5 +54,9 @@
   <key>FirebaseAppDelegateProxyEnabled</key>
   <false/>
 
+  <key>NSPushNotificationsUsageDescription</key>
+  <string>We need permission to send you important updates.</string>
+  <key>NSUserNotificationUsageDescription</key>
+  <string>We need your permission to send you notifications about important updates.</string>
 </dict>
 </plist>

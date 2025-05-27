@@ -118,43 +118,40 @@ void main() {
     print('❌ Info.plist not found at $plistPath');
   } else {
     var plistContent = plistFile.readAsStringSync();
-
     bool updated = false;
 
-    if (!plistContent.contains('UIBackgroundModes')) {
-      final insertBefore = '</dict>';
-      final modes = '''
-  <key>UIBackgroundModes</key>
-  <array>
-    <string>fetch</string>
-    <string>remote-notification</string>
-  </array>
-''';
-      plistContent = plistContent.replaceFirst(
-        insertBefore,
-        '$modes\n$insertBefore',
-      );
-      updated = true;
-      print('✅ Added UIBackgroundModes to Info.plist');
-    } else {
-      print('ℹ️ UIBackgroundModes already exist in Info.plist');
+    void insertIfMissing(String key, String value) {
+      if (!plistContent.contains('<key>$key</key>')) {
+        final insertBefore = '</dict>';
+        plistContent = plistContent.replaceFirst(
+          insertBefore,
+          '  <key>$key</key>\n  <string>$value</string>\n$insertBefore',
+        );
+        print('✅ Added $key to Info.plist');
+        updated = true;
+      } else {
+        print('ℹ️ $key already exists in Info.plist');
+      }
     }
 
-    if (!plistContent.contains('FirebaseAppDelegateProxyEnabled')) {
-      final insertBefore = '</dict>';
-      final firebaseProxy = '''
-  <key>FirebaseAppDelegateProxyEnabled</key>
-  <false/>
-''';
-      plistContent = plistContent.replaceFirst(
-        insertBefore,
-        '$firebaseProxy\n$insertBefore',
-      );
-      updated = true;
-      print('✅ Added FirebaseAppDelegateProxyEnabled to Info.plist');
-    } else {
-      print('ℹ️ FirebaseAppDelegateProxyEnabled already exists in Info.plist');
-    }
+    insertIfMissing('UIBackgroundModes', '''
+<array>
+  <string>fetch</string>
+  <string>remote-notification</string>
+</array>
+''');
+
+    insertIfMissing('FirebaseAppDelegateProxyEnabled', 'false');
+
+    insertIfMissing(
+      'NSPushNotificationsUsageDescription',
+      'We need permission to send you important updates.',
+    );
+
+    insertIfMissing(
+      'NSUserNotificationUsageDescription',
+      'We need your permission to send you notifications about important updates.',
+    );
 
     if (updated) {
       plistFile.writeAsStringSync(plistContent);
