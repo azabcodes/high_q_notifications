@@ -1,9 +1,7 @@
 import 'dart:ui';
 import '../../high_q_notifications.dart';
-
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-
 
 class AndroidConfigModel {
   AndroidConfigModel({
@@ -25,7 +23,8 @@ class AndroidConfigModel {
     BoolGetter? enableLightsGetter,
     BoolGetter? enableVibrationGetter,
   }) {
-    this.channelIdGetter = channelIdGetter ??
+    this.channelIdGetter =
+        channelIdGetter ??
         (msg) => msg.notification?.android?.channelId ?? defaultChannelId;
     this.channelNameGetter = channelNameGetter ?? (_) => defaultChannelName;
     this.channelDescriptionGetter =
@@ -35,14 +34,17 @@ class AndroidConfigModel {
     this.groupKeyGetter = groupKeyGetter ?? (_) => defaultGroupKey;
     this.tagGetter =
         tagGetter ?? (msg) => msg.notification?.android?.tag ?? defaultTag;
-    this.smallIconUrlGetter = smallIconUrlGetter ??
+    this.smallIconUrlGetter =
+        smallIconUrlGetter ??
         (msg) => msg.notification?.android?.smallIcon ?? defaultSmallIcon;
     this.importanceGetter = importanceGetter ?? (_) => defaultImportance;
     this.priorityGetter = priorityGetter ?? (_) => defaultPriority;
-    this.soundGetter = soundGetter ??
+    this.soundGetter =
+        soundGetter ??
         (msg) => msg.notification?.android?.sound ?? defaultSound;
     this.iconGetter = iconGetter ?? (_) => defaultIcon;
-    this.imageUrlGetter = imageUrlGetter ??
+    this.imageUrlGetter =
+        imageUrlGetter ??
         (msg) => msg.notification?.android?.imageUrl ?? defaultImageUrl;
     this.hideExpandedLargeIconGetter =
         hideExpandedLargeIconGetter ?? (_) => defaultHideExpandedLargeIcon;
@@ -127,14 +129,16 @@ class AndroidConfigModel {
   /// The importance of the notification.
   ///
   /// {@endtemplate}
-  static Importance defaultImportance = Importance.defaultImportance;
+
+  static HighQNotificationsImportance defaultImportance = HighQNotificationsImportance.max;
 
   /// {@template priorityGetter}
   ///
   /// The priority of the notification.
   ///
   /// {@endtemplate}
-  static Priority defaultPriority = Priority.defaultPriority;
+  static HighQNotificationsPriority defaultPriority =
+      HighQNotificationsPriority.max;
 
   /// {@template groupKeyGetter}
   ///
@@ -277,22 +281,54 @@ class AndroidConfigModel {
   /// {@macro enableLightsGetter}
   late BoolGetter enableLightsGetter;
 
+  Importance _mapImportance(HighQNotificationsImportance importance) {
+    switch (importance) {
+      case HighQNotificationsImportance.min:
+        return Importance.min;
+      case HighQNotificationsImportance.low:
+        return Importance.low;
+      case HighQNotificationsImportance.defaultImportance:
+        return Importance.defaultImportance;
+      case HighQNotificationsImportance.high:
+        return Importance.high;
+      case HighQNotificationsImportance.max:
+        return Importance.max;
+    }
+  }
+
+  Priority _mapPriority(HighQNotificationsPriority priority) {
+    switch (priority) {
+      case HighQNotificationsPriority.min:
+        return Priority.min;
+      case HighQNotificationsPriority.low:
+        return Priority.low;
+      case HighQNotificationsPriority.defaultPriority:
+        return Priority.defaultPriority;
+      case HighQNotificationsPriority.high:
+        return Priority.high;
+      case HighQNotificationsPriority.max:
+        return Priority.max;
+    }
+  }
+
   AndroidNotificationDetails toSpecifics(
     RemoteMessage message, {
     StyleInformation? styleInformation,
     AndroidBitmap<Object>? largeIcon,
   }) {
     final androidSound = soundGetter(message);
+    final importance = _mapImportance(importanceGetter(message));
+    final priority = _mapPriority(priorityGetter(message));
     return AndroidNotificationDetails(
       channelIdGetter(message),
       channelNameGetter(message),
       channelDescription: channelDescriptionGetter(message),
       styleInformation: styleInformation,
-      importance: importanceGetter(message),
+      priority: priority,
+      importance: importance,
       color: colorGetter(message),
       largeIcon: largeIcon,
       tag: tagGetter(message),
-      priority: priorityGetter(message),
       groupKey: groupKeyGetter(message),
       sound: androidSound == null
           ? null

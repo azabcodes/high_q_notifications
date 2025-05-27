@@ -1,6 +1,5 @@
 import 'package:flutter/foundation.dart';
 import 'package:high_q_notifications/high_q_notifications.dart';
-
 import 'notifications_type.dart';
 
 class HandleNotificationsNavigation {

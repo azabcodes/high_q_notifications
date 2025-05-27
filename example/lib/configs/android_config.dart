@@ -1,6 +1,5 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:high_q_notifications/high_q_notifications.dart';
 
 final AndroidConfigModel androidConfig = AndroidConfigModel(
@@ -23,8 +22,12 @@ final AndroidConfigModel androidConfig = AndroidConfigModel(
     return 'notification_sound';
   },
   importanceGetter: (RemoteMessage remoteMessage) {
-    return Importance.high;
+    return HighQNotificationsImportance.max;
   },
+  priorityGetter: (RemoteMessage remoteMessage) {
+    return HighQNotificationsPriority.max;
+  },
+
   imageUrlGetter: (RemoteMessage remoteMessage) {
     if (remoteMessage.data.containsKey('image') &&
         remoteMessage.data['image'] != null) {

@@ -3,7 +3,7 @@ import '../../high_q_notifications.dart';
 
 import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:firebase_messaging/firebase_messaging.dart' hide AndroidNotificationPriority;
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 
@@ -22,11 +22,11 @@ typedef BoolGetter = bool Function(RemoteMessage);
 typedef RemoteMessageGetter = RemoteMessage Function(RemoteMessage);
 typedef NullableColorGetter = Color? Function(RemoteMessage);
 
-typedef AndroidImportanceGetter = Importance Function(RemoteMessage);
-typedef AndroidPriorityGetter = Priority Function(RemoteMessage);
 
 typedef IosInterruptionLevelGetter = InterruptionLevel? Function(RemoteMessage);
 typedef IosNotificationAttachmentClippingRectGetter =
     DarwinNotificationAttachmentThumbnailClippingRect? Function(RemoteMessage);
 typedef DioEither<T> = Either<Failure, Response<dynamic>>;
 typedef FutureEither<T> = Future<Either<Failure, T>>;
+typedef AndroidImportanceGetter = HighQNotificationsImportance Function(RemoteMessage);
+typedef AndroidPriorityGetter = HighQNotificationsPriority Function(RemoteMessage message);

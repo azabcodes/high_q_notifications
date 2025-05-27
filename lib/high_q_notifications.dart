@@ -8,4 +8,6 @@ export 'src/utils/services_locator.dart';
 export 'src/utils/download_image.dart';
 export 'src/utils/failure.dart';
 export 'src/utils/types_def.dart';
+export 'src/utils/notification_importance.dart';
+export 'src/utils/notification_priority.dart';
 export 'src/high_q_notifications_base.dart';
