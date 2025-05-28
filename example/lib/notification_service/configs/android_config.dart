@@ -33,7 +33,6 @@ final AndroidConfigModel androidConfig = AndroidConfigModel(
       );
     }).toList();
   },
-
   colorGetter: (RemoteMessage remoteMessage) {
     return Colors.red;
   },
@@ -52,11 +51,23 @@ final AndroidConfigModel androidConfig = AndroidConfigModel(
   priorityGetter: (RemoteMessage remoteMessage) {
     return Priority.low;
   },
+  fullScreenIntentGetter: (RemoteMessage remoteMessage) {
+    return false;
+  },
+  silentGetter: (RemoteMessage remoteMessage) {
+    return false;
+  },
   imageUrlGetter: (RemoteMessage remoteMessage) {
     if (remoteMessage.data.containsKey('image') &&
         remoteMessage.data['image'] != null) {
       return remoteMessage.data['image'];
     }
     return null;
+  },
+  additionalFlagsGetter: (RemoteMessage remoteMessage) {
+    return [
+/*      AndroidNotificationFlag.autoCancel,
+      AndroidNotificationFlag.showLights,*/
+    ];
   },
 );

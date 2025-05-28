@@ -1,3 +1,4 @@
+import 'dart:typed_data';
 import 'dart:ui';
 import '../../high_q_notifications.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -22,7 +23,10 @@ class AndroidConfigModel {
     BoolGetter? playSoundGetter,
     BoolGetter? enableLightsGetter,
     BoolGetter? enableVibrationGetter,
+    BoolGetter? silentGetter,
+    BoolGetter? fullScreenIntentGetter,
     AndroidActionsGetter? actionsGetter,
+    AndroidFlagGetter? additionalFlagsGetter,
   }) {
     this.channelIdGetter =
         channelIdGetter ??
@@ -33,6 +37,11 @@ class AndroidConfigModel {
     this.appIconGetter = appIconGetter ?? (_) => defaultAppIcon;
     this.colorGetter = colorGetter ?? (_) => defaultColor;
     this.autoCancelGetter = autoCancelGetter ?? (_) => autoCancel;
+    this.silentGetter = silentGetter ?? (_) => silent;
+    this.fullScreenIntentGetter =
+        fullScreenIntentGetter ?? (_) => fullScreenIntent;
+    this.additionalFlagsGetter = additionalFlagsGetter ?? (_) => [];
+
     this.groupKeyGetter = groupKeyGetter ?? (_) => defaultGroupKey;
     this.tagGetter =
         tagGetter ?? (msg) => msg.notification?.android?.tag ?? defaultTag;
@@ -91,6 +100,9 @@ class AndroidConfigModel {
 
   static Color? defaultColor;
   static bool autoCancel = true;
+  static bool silent = false;
+  static bool fullScreenIntent = true;
+  static Int32List additionalFlags = Int32List.fromList([]);
 
   static String? defaultTag;
 
@@ -118,6 +130,7 @@ class AndroidConfigModel {
   late AndroidPriorityGetter priorityGetter;
 
   late NullableStringGetter groupKeyGetter;
+  late AndroidFlagGetter additionalFlagsGetter;
 
   late NullableStringGetter iconGetter;
 
@@ -127,6 +140,8 @@ class AndroidConfigModel {
 
   late NullableColorGetter colorGetter;
   late BoolGetter autoCancelGetter;
+  late BoolGetter silentGetter;
+  late BoolGetter fullScreenIntentGetter;
 
   late NullableStringGetter tagGetter;
 
@@ -153,6 +168,33 @@ class AndroidConfigModel {
     }
   }
 
+  Int32List _mapAdditionalFlags(AndroidNotificationFlag flag) {
+    switch (flag) {
+      case AndroidNotificationFlag.insistent:
+        return Int32List.fromList([1]); // FLAG_INSISTENT
+      case AndroidNotificationFlag.ongoingEvent:
+        return Int32List.fromList([2]); // FLAG_ONGOING_EVENT
+      case AndroidNotificationFlag.onlyAlertOnce:
+        return Int32List.fromList([4]); // FLAG_ONLY_ALERT_ONCE
+      case AndroidNotificationFlag.autoCancel:
+        return Int32List.fromList([8]); // FLAG_AUTO_CANCEL
+      case AndroidNotificationFlag.noClear:
+        return Int32List.fromList([16]); // FLAG_NO_CLEAR
+      case AndroidNotificationFlag.foregroundService:
+        return Int32List.fromList([32]); // FLAG_FOREGROUND_SERVICE
+      case AndroidNotificationFlag.highPriority:
+        return Int32List.fromList([64]); // FLAG_HIGH_PRIORITY
+      case AndroidNotificationFlag.showLights:
+        return Int32List.fromList([128]); // FLAG_SHOW_LIGHTS
+      case AndroidNotificationFlag.groupSummary:
+        return Int32List.fromList([256]); // FLAG_GROUP_SUMMARY
+      case AndroidNotificationFlag.useColorized:
+        return Int32List.fromList([512]); // FLAG_USE_COLORIZED
+      case AndroidNotificationFlag.colorized:
+        return Int32List.fromList([1024]); // FLAG_COLORIZED
+    }
+  }
+
   Priority _mapPriority(HighQNotificationsPriority priority) {
     switch (priority) {
       case HighQNotificationsPriority.min:
@@ -176,6 +218,8 @@ class AndroidConfigModel {
     final androidSound = soundGetter(message);
     /* final importance = _mapImportance(importanceGetter(message));
     final priority = _mapPriority(priorityGetter(message));*/
+    final additionalFlagsMap = flagsToInt32List(additionalFlagsGetter(message));
+
     return AndroidNotificationDetails(
       channelIdGetter(message),
       channelNameGetter(message),
@@ -198,7 +242,9 @@ class AndroidConfigModel {
       enableVibration: enableVibrationGetter(message),
       actions: actionsGetter?.call(message),
       autoCancel: autoCancelGetter(message),
-
+      additionalFlags: additionalFlagsMap,
+      fullScreenIntent: fullScreenIntentGetter(message),
+      silent: silentGetter(message),
       // TODO: add other params
     );
   }

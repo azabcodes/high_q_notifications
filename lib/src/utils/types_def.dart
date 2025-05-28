@@ -1,3 +1,4 @@
+import 'dart:typed_data';
 import 'dart:ui';
 import '../../high_q_notifications.dart';
 
@@ -19,6 +20,7 @@ typedef NullableIntGetter = int? Function(RemoteMessage);
 typedef NullableStringGetter = String? Function(RemoteMessage);
 typedef StringGetter = String Function(RemoteMessage);
 typedef BoolGetter = bool Function(RemoteMessage);
+typedef AndroidFlagGetter = List<AndroidNotificationFlag> Function(RemoteMessage);
 typedef RemoteMessageGetter = RemoteMessage Function(RemoteMessage);
 typedef NullableColorGetter = Color? Function(RemoteMessage);
 
