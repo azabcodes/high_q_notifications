@@ -198,6 +198,7 @@ class AndroidConfigModel {
       enableVibration: enableVibrationGetter(message),
       actions: actionsGetter?.call(message),
       autoCancel: autoCancelGetter(message),
+
       // TODO: add other params
     );
   }

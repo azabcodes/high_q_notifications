@@ -47,10 +47,10 @@ final AndroidConfigModel androidConfig = AndroidConfigModel(
     return 'notification_sound';
   },
   importanceGetter: (RemoteMessage remoteMessage) {
-    return Importance.max;
+    return Importance.low;
   },
   priorityGetter: (RemoteMessage remoteMessage) {
-    return Priority.max;
+    return Priority.low;
   },
   imageUrlGetter: (RemoteMessage remoteMessage) {
     if (remoteMessage.data.containsKey('image') &&
