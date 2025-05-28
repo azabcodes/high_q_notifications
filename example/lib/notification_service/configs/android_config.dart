@@ -70,4 +70,5 @@ final AndroidConfigModel androidConfig = AndroidConfigModel(
       AndroidNotificationFlag.showLights,*/
     ];
   },
+
 );
