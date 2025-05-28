@@ -1,10 +1,22 @@
+import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:high_q_notifications/high_q_notifications.dart';
 
+import 'firebase_options.dart';
 import 'notification_service/exports.dart';
 
-void main() {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  try {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+  } catch (error) {
+    if (kDebugMode) {
+      print(error);
+    }
+  }
   runApp(
     HighQNotifications(
       requestPermissionsOnInitialize: true,

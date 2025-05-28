@@ -1,4 +1,5 @@
 #!/usr/bin/env dart
+
 // ignore_for_file: avoid_print
 import 'dart:io';
 
@@ -6,6 +7,120 @@ Future<void> main() async {
   await addPackageIfMissing(packageName: 'firebase_core');
   await addPackageIfMissing(packageName: 'firebase_messaging');
   await createNotificationServiceFiles();
+
+  /// ========== Android build.gradle.kts Configuration ==========
+  final buildGradleKtsPath = 'android/app/build.gradle.kts';
+  final buildGradleKtsFile = File(buildGradleKtsPath);
+
+  if (!buildGradleKtsFile.existsSync()) {
+    print('❌ build.gradle.kts not found at $buildGradleKtsPath');
+  } else {
+    var gradleContent = buildGradleKtsFile.readAsStringSync();
+    bool updated = false;
+
+    /// 1. Ensure dependencies block exists and inject lines
+    final dependenciesRegex = RegExp(r'dependencies\s*{([\s\S]*?)\n}');
+    final match = dependenciesRegex.firstMatch(gradleContent);
+
+    const coreKtx = 'implementation("androidx.core:core-ktx:1.12.0")';
+    const desugarLib =
+        'coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")';
+
+    if (match != null) {
+      String fullBlock = match.group(0)!;
+      String updatedBlock = fullBlock;
+
+      if (!fullBlock.contains(coreKtx)) {
+        updatedBlock = updatedBlock.replaceFirst('{', '{\n    $coreKtx');
+      }
+
+      if (!fullBlock.contains(desugarLib)) {
+        updatedBlock = updatedBlock.replaceFirst('{', '{\n    $desugarLib');
+      }
+
+      if (updatedBlock != fullBlock) {
+        gradleContent = gradleContent.replaceFirst(fullBlock, updatedBlock);
+        print('✅ Updated existing dependencies block');
+        updated = true;
+      } else {
+        print('ℹ️ Dependencies already present');
+      }
+    } else {
+      // No dependencies block exists — create one
+      final newBlock =
+          '''
+dependencies {
+    $coreKtx
+    $desugarLib
+}
+''';
+
+      // Try to insert before closing bracket of android { }
+      final androidBlockEnd = gradleContent.lastIndexOf("}"); // crude but works
+      if (androidBlockEnd != -1) {
+        gradleContent = gradleContent.replaceRange(
+          androidBlockEnd,
+          androidBlockEnd,
+          '\n\n$newBlock\n',
+        );
+        print('✅ Created new dependencies block');
+        updated = true;
+      } else {
+        // fallback: append to end
+        gradleContent += '\n\n$newBlock\n';
+        print('✅ Appended new dependencies block at end of file');
+        updated = true;
+      }
+    }
+
+    /// 2. Add multiDexEnabled = true inside defaultConfig
+    final defaultConfigRegex = RegExp(r'defaultConfig\s*{');
+    if (defaultConfigRegex.hasMatch(gradleContent)) {
+      final match = defaultConfigRegex.firstMatch(gradleContent)!;
+      final insertIndex = match.end;
+      if (!gradleContent.contains('multiDexEnabled = true')) {
+        gradleContent = gradleContent.replaceRange(
+          insertIndex,
+          insertIndex,
+          '\n        multiDexEnabled = true',
+        );
+        print('✅ Added multiDexEnabled = true inside defaultConfig');
+        updated = true;
+      } else {
+        print('ℹ️ multiDexEnabled already exists in defaultConfig');
+      }
+    } else {
+      print('❌ Could not find defaultConfig block');
+    }
+
+    /// 3. Add isCoreLibraryDesugaringEnabled = true inside compileOptions
+    final compileOptionsRegex = RegExp(r'compileOptions\s*{');
+    if (compileOptionsRegex.hasMatch(gradleContent)) {
+      final match = compileOptionsRegex.firstMatch(gradleContent)!;
+      final insertIndex = match.end;
+      if (!gradleContent.contains('isCoreLibraryDesugaringEnabled = true')) {
+        gradleContent = gradleContent.replaceRange(
+          insertIndex,
+          insertIndex,
+          '\n        isCoreLibraryDesugaringEnabled = true',
+        );
+        print(
+          '✅ Added isCoreLibraryDesugaringEnabled = true inside compileOptions',
+        );
+        updated = true;
+      } else {
+        print('ℹ️ isCoreLibraryDesugaringEnabled already exists');
+      }
+    } else {
+      print('❌ Could not find compileOptions block');
+    }
+
+    /// Save file if any changes were made
+    if (updated) {
+      buildGradleKtsFile.writeAsStringSync(gradleContent);
+      print('🎉 build.gradle.kts updated successfully!');
+    }
+  }
 
   /// ========== Android Configuration ==========
   final manifestPath = 'android/app/src/main/AndroidManifest.xml';
@@ -422,6 +537,44 @@ export 'utils/handle_actions.dart';
   await exportsFile.writeAsString(exportContent, mode: FileMode.write);
   print('✅ exports.dart created or updated at $exportsPath');
 
+  final handleActionsPath = '$basePath/utils/handle_actions.dart';
+  final handleActionsFile = File(handleActionsPath);
+
+  const handleActionsContent = '''
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/foundation.dart';
+import 'package:high_q_notifications/high_q_notifications.dart';
+import 'navigation_service.dart';
+
+class HandleNotificationsActions {
+  static void handleAction(
+    NotificationResponse response,
+    RemoteMessage message,
+  ) {
+    final context = NavigationService().navigatorKey.currentContext;
+    if (context == null) return;
+
+    switch (response.actionId) {
+      case 'reply':
+        break;
+      case 'snooze':
+        break;
+      default:
+        if (kDebugMode) {
+          print('Unknown action: \${response.actionId}');
+        }
+    }
+  }
+}
+''';
+
+  await handleActionsFile.create(recursive: true);
+  await handleActionsFile.writeAsString(
+    handleActionsContent,
+    mode: FileMode.write,
+  );
+  print('✅ handle_actions.dart created or updated at $handleActionsPath');
+
   final mainCopyPath = 'lib/main_notifications.dart';
   final mainCopyFile = File(mainCopyPath);
 
@@ -443,6 +596,7 @@ void main() {
       shouldHandleNotification: (_) => true,
       onOpenNotificationArrive: (_) {},
       onTap: HandleNotificationsNavigation.handleNotificationTap,
+      onAction: HandleNotificationsActions.handleAction,
       onFcmTokenInitialize: (token) {
         NavigationService().fcmTokenNotifier.value = token;
       },
