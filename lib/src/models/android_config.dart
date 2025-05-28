@@ -21,6 +21,9 @@ class AndroidConfigModel {
     BoolGetter? playSoundGetter,
     BoolGetter? enableLightsGetter,
     BoolGetter? enableVibrationGetter,
+    AndroidActionsGetter? actionsGetter,
+    BoolGetter? enableActionsGetter,
+
   }) {
     this.channelIdGetter =
         channelIdGetter ??
@@ -51,7 +54,12 @@ class AndroidConfigModel {
     this.enableLightsGetter = enableLightsGetter ?? (_) => defaultEnableLights;
     this.enableVibrationGetter =
         enableVibrationGetter ?? (_) => defaultEnableVibration;
+    this.actionsGetter = actionsGetter ?? (_) => defaultActions;
+    this.enableActionsGetter = enableActionsGetter ?? (_) => true;
   }
+
+  late AndroidActionsGetter? actionsGetter;
+  late BoolGetter? enableActionsGetter;
 
   /// {@template channelIdGetter}
   ///
@@ -224,6 +232,7 @@ class AndroidConfigModel {
   ///
   /// {@endtemplate}
   static bool defaultEnableVibration = true;
+  static List<AndroidNotificationAction> defaultActions = [];
 
   /// {@template enableLightsGetter}
   ///
@@ -344,7 +353,7 @@ class AndroidConfigModel {
       playSound: playSoundGetter(message),
       enableLights: enableLightsGetter(message),
       enableVibration: enableVibrationGetter(message),
-
+      actions: actionsGetter?.call(message),
       // TODO: add other params
     );
   }

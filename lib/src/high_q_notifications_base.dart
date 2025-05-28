@@ -21,6 +21,11 @@ void notificationTapBackground(NotificationResponse notificationResponse) {
       // Handle action in background
       if (_HighQNotificationsState._onAction != null) {
         _HighQNotificationsState._onAction!(notificationResponse, message);
+      } else {
+        // Default behavior if no handler is set
+        if (kDebugMode) {
+          print('Action ${notificationResponse.actionId} tapped in background');
+        }
       }
     } else {
       _HighQNotificationsState._notificationHandler(
@@ -543,25 +548,25 @@ class _HighQNotificationsState extends State<HighQNotifications> {
         initializationSettings,
         onDidReceiveBackgroundNotificationResponse: notificationTapBackground,
         onDidReceiveNotificationResponse: (details) {
+          if (details.payload == null) return;
+          final message = RemoteMessage.fromMap(jsonDecode(details.payload!));
           if (details.notificationResponseType ==
               NotificationResponseType.selectedNotification) {
             final tapDetails = NotificationInfoModel(
               appState: AppState.open,
-              firebaseMessage: RemoteMessage.fromMap(
-                jsonDecode(details.payload!),
-              ),
+              firebaseMessage: message,
             );
-
             _onTap?.call(tapDetails);
             _notificationTapsSubscription.add(tapDetails);
           } else if (details.notificationResponseType ==
               NotificationResponseType.selectedNotificationAction) {
-            final message = RemoteMessage.fromMap(jsonDecode(details.payload!));
+            // Action button tap
             if (_onAction != null) {
               _onAction!(details, message);
             } else {
-              // Default behavior if no handler is set
-              print('User tapped Default');
+              if (kDebugMode) {
+                print('Action ${details.actionId} tapped');
+              }
             }
           }
         },

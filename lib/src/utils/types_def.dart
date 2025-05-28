@@ -6,10 +6,9 @@ import 'package:dio/dio.dart';
 import 'package:firebase_messaging/firebase_messaging.dart' hide AndroidNotificationPriority;
 
 typedef OnTapGetter = void Function(NotificationInfoModel details);
-typedef OnActionGetter =
-    void Function(NotificationResponse response, RemoteMessage message);
-
+typedef OnActionGetter =void Function(NotificationResponse response, RemoteMessage message);
 typedef OnOpenNotificationArrive = void Function(NotificationInfoModel);
+typedef AndroidActionsGetter = List<AndroidNotificationAction> Function(RemoteMessage message);
 
 typedef FcmInitializeGetter = void Function(String?);
 typedef FcmUpdateGetter = void Function(String);
