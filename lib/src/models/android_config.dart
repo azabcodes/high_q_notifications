@@ -245,6 +245,7 @@ class AndroidConfigModel {
       additionalFlags: additionalFlagsMap,
       fullScreenIntent: fullScreenIntentGetter(message),
       silent: silentGetter(message),
+
       // TODO: add other params
     );
   }
