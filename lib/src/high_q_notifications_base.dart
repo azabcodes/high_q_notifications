@@ -36,6 +36,13 @@ void notificationTapBackground(NotificationResponse notificationResponse) {
   }
 }
 
+@pragma('vm:entry-point')
+Future<void> myBackgroundMessageHandler(RemoteMessage message) =>
+    _HighQNotificationsState._notificationHandler(
+      message,
+      appState: AppState.terminated,
+    );
+
 class HighQNotifications extends StatefulWidget {
   static bool enableLogs = !kReleaseMode;
 
@@ -509,9 +516,6 @@ class _HighQNotificationsState extends State<HighQNotifications> {
   static Future<void> _onMessage(RemoteMessage message) =>
       _notificationHandler(message, appState: AppState.open);
 
-  static Future<void> _onBackgroundMessage(RemoteMessage message) =>
-      _notificationHandler(message, appState: AppState.terminated);
-
   static Future<void> _onMessageOpenedApp(RemoteMessage message) =>
       _notificationHandler(message, appState: AppState.background);
 
@@ -937,7 +941,8 @@ class _HighQNotificationsState extends State<HighQNotifications> {
     _onMessageSubscription = FirebaseMessaging.onMessage.listen(
       onMessageListener,
     );
-    FirebaseMessaging.onBackgroundMessage(_onBackgroundMessage);
+    FirebaseMessaging.onBackgroundMessage(myBackgroundMessageHandler);
+
     _onMessageOpenedAppSubscription = FirebaseMessaging.onMessageOpenedApp
         .listen(_onMessageOpenedApp);
 
@@ -961,7 +966,7 @@ class _HighQNotificationsState extends State<HighQNotifications> {
         final initialMessage = await getInitialMessage();
 
         if (initialMessage != null) {
-          _onBackgroundMessage(initialMessage);
+          myBackgroundMessageHandler(initialMessage);
         }
       } else {
         await _initializeLocalNotifications();

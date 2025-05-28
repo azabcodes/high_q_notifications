@@ -14,14 +14,13 @@ class HandleNotificationsActions {
     );
 
     switch (response.actionId) {
-      case 'reply_action':
+      case 'add_text':
         if (kDebugMode) {
-          print('reply action: ${response.actionId}');
-        }
-        break;
-      case 'snooze':
-        if (kDebugMode) {
-          print('snooze action: ${response.actionId}');
+          print('actionInfo response: ${actionInfo.response.data}');
+          print(
+            'actionInfo firebaseMessage : ${actionInfo.firebaseMessage.data}',
+          );
+          print('add_text action: ${response.actionId}');
         }
         break;
       default:
@@ -35,8 +34,7 @@ class HandleNotificationsActions {
     if (response.notificationResponseType ==
         NotificationResponseType.selectedNotificationAction) {
       // For background actions, we need to determine if the app was in background or terminated
-      return PlatformDispatcher.instance.platformBrightness ==
-              Brightness.dark
+      return PlatformDispatcher.instance.platformBrightness == Brightness.dark
           ? AppState.background
           : AppState.terminated;
     }

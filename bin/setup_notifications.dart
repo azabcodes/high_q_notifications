@@ -162,13 +162,44 @@ dependencies {
       }
 
       /// 2. Add meta-data inside <application> if missing
-      final metaData = '''
+      final metaDataAndReceiver = '''
     <meta-data
         android:name="com.google.firebase.messaging.default_notification_channel_id"
-        android:value="default" />
+        android:value="my_channel_id" />
     <meta-data
         android:name="com.google.firebase.messaging.default_notification_icon"
         android:resource="@drawable/notification_icon" />
+        
+        
+     <!-- Receiver for handling custom actions with Flutter Local Notifications -->
+        <receiver
+            android:name="com.dexterous.flutterlocalnotifications.ActionBroadcastReceiver"
+            android:exported="false" />
+
+        <!-- Receiver for scheduling notifications using Flutter Local Notifications -->
+        <receiver
+            android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationReceiver"
+            android:exported="false" />
+
+        <!-- Receiver for handling scheduled notifications after device reboot -->
+        <receiver
+            android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationBootReceiver"
+            android:exported="false">
+
+            <!-- Intent filters for handling boot and package replacement actions -->
+            <intent-filter>
+                <!-- Action for handling device boot completed -->
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+
+                <!-- Action for handling package replacement (like app updates) -->
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+
+                <!-- Action for handling quick boot/power on (on certain devices) -->
+                <action android:name="android.intent.action.QUICKBOOT_POWERON" />
+                <action android:name="com.htc.intent.action.QUICKBOOT_POWERON" />
+            </intent-filter>
+        </receiver>    
+        
   ''';
 
       if (!content.contains(
@@ -179,8 +210,12 @@ dependencies {
         ).firstMatch(content);
         if (appTagOpenMatch != null) {
           final insertAt = appTagOpenMatch.end;
-          content = content.replaceRange(insertAt, insertAt, '\n$metaData\n');
-          print('✅ Added meta-data inside <application>');
+          content = content.replaceRange(
+            insertAt,
+            insertAt,
+            '\n$metaDataAndReceiver\n',
+          );
+          print('✅ Added meta-data and receivers inside <application>');
         } else {
           print('❌ Could not find <application> tag to insert meta-data');
         }
@@ -379,17 +414,39 @@ Future<void> createNotificationServiceFiles() async {
 
   final files = <String, String>{
     '$basePath/configs/android_config.dart': '''
+import 'dart:convert';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:high_q_notifications/high_q_notifications.dart';
 
 final AndroidConfigModel androidConfig = AndroidConfigModel(
   channelIdGetter: (RemoteMessage remoteMessage) {
-    return '_testId';
+    return 'my_channel_id';
   },
   channelNameGetter: (RemoteMessage remoteMessage) {
     return 'Test App Notification';
   },
+  actionsGetter: (RemoteMessage message) {
+    final data = message.data['action_buttons'];
+    if (data == null) return [];
+
+    final decoded = jsonDecode(data) as List<dynamic>;
+    return decoded.map<AndroidNotificationAction>((item) {
+      final id = item['action'] ?? 'default_action';
+      final title = item['title'] ?? 'Action';
+
+      return AndroidNotificationAction(
+        id,
+        title,
+        showsUserInterface: true,
+        inputs: [
+          if (id == 'reply_action')
+            const AndroidNotificationActionInput(label: 'Type your reply'),
+        ],
+      );
+    }).toList();
+  },
+
   colorGetter: (RemoteMessage remoteMessage) {
     return Colors.red;
   },
@@ -544,26 +601,46 @@ export 'utils/handle_actions.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:high_q_notifications/high_q_notifications.dart';
-import 'navigation_service.dart';
 
 class HandleNotificationsActions {
   static void handleAction(
     NotificationResponse response,
     RemoteMessage message,
   ) {
-    final context = NavigationService().navigatorKey.currentContext;
-    if (context == null) return;
+    final actionInfo = NotificationActionInfoModel(
+      appState: _getAppState(response),
+      firebaseMessage: message,
+      response: response,
+    );
 
     switch (response.actionId) {
-      case 'reply':
-        break;
-      case 'snooze':
+      case 'add_text':
+        if (kDebugMode) {
+          print('actionInfo response');
+          print(actionInfo.response.data);
+          print('actionInfo firebaseMessage');
+          print(actionInfo.firebaseMessage.data);
+          print('add_text action');
+          print(response.actionId);
+        }
         break;
       default:
         if (kDebugMode) {
-          print('Unknown action: \${response.actionId}');
+          print('default action');
+          print(response.actionId);
         }
     }
+  }
+
+  static AppState _getAppState(NotificationResponse response) {
+    if (response.notificationResponseType ==
+        NotificationResponseType.selectedNotificationAction) {
+      // For background actions, we need to determine if the app was in background or terminated
+      return PlatformDispatcher.instance.platformBrightness == Brightness.dark
+          ? AppState.background
+          : AppState.terminated;
+    }
+    return AppState.open;
   }
 }
 ''';
