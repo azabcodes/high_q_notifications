@@ -9,6 +9,7 @@ typedef OnTapGetter = void Function(NotificationInfoModel details);
 typedef OnActionGetter =void Function(NotificationResponse response, RemoteMessage message);
 typedef OnOpenNotificationArrive = void Function(NotificationInfoModel);
 typedef AndroidActionsGetter = List<AndroidNotificationAction> Function(RemoteMessage message);
+typedef IosCategoryGetter = List<DarwinNotificationCategory> Function(RemoteMessage message);
 
 typedef FcmInitializeGetter = void Function(String?);
 typedef FcmUpdateGetter = void Function(String);

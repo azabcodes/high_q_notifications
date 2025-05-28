@@ -16,16 +16,18 @@ class HandleNotificationsActions {
     switch (response.actionId) {
       case 'add_text':
         if (kDebugMode) {
-          print('actionInfo response: ${actionInfo.response.data}');
-          print(
-            'actionInfo firebaseMessage : ${actionInfo.firebaseMessage.data}',
-          );
-          print('add_text action: ${response.actionId}');
+          print('actionInfo response');
+          print(actionInfo.response.data);
+          print('actionInfo firebaseMessage');
+          print(actionInfo.firebaseMessage.data);
+          print('add_text action');
+          print(response.actionId);
         }
         break;
       default:
         if (kDebugMode) {
-          print('default action: ${response.actionId}');
+          print('default action');
+          print(response.actionId);
         }
     }
   }

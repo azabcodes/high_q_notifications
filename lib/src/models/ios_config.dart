@@ -17,7 +17,7 @@ class IosConfigModel {
     BoolGetter? presentListGetter,
     BoolGetter? hideThumbnailGetter,
     IosNotificationAttachmentClippingRectGetter? thumbnailClippingRectGetter,
-    List<DarwinNotificationCategory>? notificationCategories,
+    IosCategoryGetter? categoryGetter,
   }) {
     final soundGetterRef =
         soundGetter ??
@@ -60,8 +60,10 @@ class IosConfigModel {
     this.presentBannerGetter =
         presentBannerGetter ?? (_) => defaultPresentBanner;
     this.presentListGetter = presentListGetter ?? (_) => defaultPresentList;
+    this.categoryGetter = categoryGetter ?? (_) => defaultCategories;
   }
-
+  late IosCategoryGetter? categoryGetter;
+  static List<DarwinNotificationCategory> defaultCategories = [];
   /// {@template soundGetter}
   ///
   /// Specifies the name of the file to play for the notification.
