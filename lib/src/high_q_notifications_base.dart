@@ -37,11 +37,12 @@ void notificationTapBackground(NotificationResponse notificationResponse) {
 }
 
 @pragma('vm:entry-point')
-Future<void> myBackgroundMessageHandler(RemoteMessage message) =>
-    _HighQNotificationsState._notificationHandler(
-      message,
-      appState: AppState.terminated,
-    );
+Future<void> myBackgroundMessageHandler(RemoteMessage message) {
+  return _HighQNotificationsState._notificationHandler(
+    message,
+    appState: AppState.terminated,
+  );
+}
 
 class HighQNotifications extends StatefulWidget {
   static bool enableLogs = !kReleaseMode;
@@ -543,7 +544,7 @@ class _HighQNotificationsState extends State<HighQNotifications> {
         requestProvisionalPermission:
             IosConfigModel.requestProvisionalPermission,
         requestCriticalPermission: IosConfigModel.requestCriticalPermission,
-        notificationCategories: IosConfigModel.notificationCategories,
+        notificationCategories: IosConfigModel.defaultCategories,
       ),
     );
 
@@ -562,7 +563,8 @@ class _HighQNotificationsState extends State<HighQNotifications> {
             );
             _onTap?.call(tapDetails);
             _notificationTapsSubscription.add(tapDetails);
-          } else if (details.notificationResponseType ==
+          }
+          else if (details.notificationResponseType ==
               NotificationResponseType.selectedNotificationAction) {
             // Action button tap
             if (_onAction != null) {

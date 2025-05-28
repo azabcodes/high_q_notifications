@@ -255,7 +255,6 @@ class IosConfigModel {
   /// https://developer.apple.com/documentation/usernotifications/unnotificationcategory
   /// for more details.
 
-  static List<DarwinNotificationCategory> notificationCategories = [];
 
   /// {@template thumbnailClippingRectGetter}
   ///

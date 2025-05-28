@@ -10,6 +10,9 @@ final AndroidConfigModel androidConfig = AndroidConfigModel(
   channelNameGetter: (RemoteMessage remoteMessage) {
     return 'Test App Notification';
   },
+  autoCancelGetter: (RemoteMessage remoteMessage) {
+    return false;
+  },
   actionsGetter: (RemoteMessage message) {
     final data = message.data['action_buttons'];
     if (data == null) return [];
