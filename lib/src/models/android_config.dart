@@ -1,7 +1,6 @@
 import 'dart:ui';
 import '../../high_q_notifications.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 class AndroidConfigModel {
   AndroidConfigModel({
@@ -130,15 +129,21 @@ class AndroidConfigModel {
   ///
   /// {@endtemplate}
 
-  static HighQNotificationsImportance defaultImportance = HighQNotificationsImportance.max;
+  static Importance defaultImportance = Importance.defaultImportance;
+
+  /*  static HighQNotificationsImportance defaultImportance =
+      HighQNotificationsImportance.max;*/
 
   /// {@template priorityGetter}
   ///
   /// The priority of the notification.
   ///
   /// {@endtemplate}
-  static HighQNotificationsPriority defaultPriority =
-      HighQNotificationsPriority.max;
+
+  static Priority defaultPriority = Priority.defaultPriority;
+
+  /* static HighQNotificationsPriority defaultPriority =
+      HighQNotificationsPriority.max;*/
 
   /// {@template groupKeyGetter}
   ///
@@ -317,15 +322,17 @@ class AndroidConfigModel {
     AndroidBitmap<Object>? largeIcon,
   }) {
     final androidSound = soundGetter(message);
-    final importance = _mapImportance(importanceGetter(message));
-    final priority = _mapPriority(priorityGetter(message));
+    /* final importance = _mapImportance(importanceGetter(message));
+    final priority = _mapPriority(priorityGetter(message));*/
     return AndroidNotificationDetails(
       channelIdGetter(message),
       channelNameGetter(message),
       channelDescription: channelDescriptionGetter(message),
       styleInformation: styleInformation,
-      priority: priority,
-      importance: importance,
+      importance: importanceGetter(message),
+      priority: priorityGetter(message),
+      /*priority: priority,
+      importance: importance,*/
       color: colorGetter(message),
       largeIcon: largeIcon,
       tag: tagGetter(message),

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "679813817978",
+    "project_id": "notification-example-highq",
+    "storage_bucket": "notification-example-highq.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:679813817978:android:6251944fd4ab297abb7dc3",
+        "android_client_info": {
+          "package_name": "com.highq.example"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAjR2uNRfgeF7CC5CdhMjQIswf9yeTxdXI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

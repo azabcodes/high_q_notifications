@@ -46,14 +46,13 @@
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
   <key>UIBackgroundModes</key>
-  <array>
-    <string>fetch</string>
-    <string>remote-notification</string>
-  </array>
-
+  <string><array>
+  <string>fetch</string>
+  <string>remote-notification</string>
+</array>
+</string>
   <key>FirebaseAppDelegateProxyEnabled</key>
-  <false/>
-
+  <string>false</string>
   <key>NSPushNotificationsUsageDescription</key>
   <string>We need permission to send you important updates.</string>
   <key>NSUserNotificationUsageDescription</key>

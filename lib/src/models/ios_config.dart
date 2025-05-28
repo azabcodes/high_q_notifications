@@ -1,7 +1,5 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import '../../high_q_notifications.dart';
-
 
 class IosConfigModel {
   IosConfigModel({
@@ -19,8 +17,10 @@ class IosConfigModel {
     BoolGetter? presentListGetter,
     BoolGetter? hideThumbnailGetter,
     IosNotificationAttachmentClippingRectGetter? thumbnailClippingRectGetter,
+    List<DarwinNotificationCategory>? notificationCategories,
   }) {
-    final soundGetterRef = soundGetter ??
+    final soundGetterRef =
+        soundGetter ??
         (msg) => msg.notification?.apple?.sound?.name ?? defaultSound;
 
     this.soundGetter = (msg) {
@@ -36,9 +36,11 @@ class IosConfigModel {
       return sound;
     };
 
-    this.subtitleGetter = subtitleGetter ??
+    this.subtitleGetter =
+        subtitleGetter ??
         (msg) => msg.notification?.apple?.subtitle ?? defaultSubtitle;
-    this.imageUrlGetter = imageUrlGetter ??
+    this.imageUrlGetter =
+        imageUrlGetter ??
         (msg) => msg.notification?.apple?.imageUrl ?? defaultImageUrl;
     this.badgeNumberGetter = badgeNumberGetter ?? (_) => defaultBadgeNumber;
     this.categoryIdentifierGetter =
@@ -49,7 +51,8 @@ class IosConfigModel {
         interruptionLevelGetter ?? (_) => defaultInterruptionLevel;
     this.hideThumbnailGetter =
         hideThumbnailGetter ?? (_) => defaultHideThumbnail;
-    this.thumbnailClippingRectGetter = thumbnailClippingRectGetter ??
+    this.thumbnailClippingRectGetter =
+        thumbnailClippingRectGetter ??
         (_) => defaultThumbnailClippingRectGetter;
     this.presentSoundGetter = presentSoundGetter ?? (_) => defaultPresentSound;
     this.presentAlertGetter = presentAlertGetter ?? (_) => defaultPresentAlert;
@@ -243,13 +246,22 @@ class IosConfigModel {
   /// Default value is 'false'.
   static bool requestCriticalPermission = false;
 
+  /// Corresponds to the `UNNotificationCategory` type which is used to configure
+  /// notification categories and accompanying options.
+  ///
+  /// See the official docs at
+  /// https://developer.apple.com/documentation/usernotifications/unnotificationcategory
+  /// for more details.
+
+  static List<DarwinNotificationCategory> notificationCategories = [];
+
   /// {@template thumbnailClippingRectGetter}
   ///
   /// The clipping rectangle for the thumbnail image.
   ///
   /// {@endtemplate}
   static DarwinNotificationAttachmentThumbnailClippingRect?
-      defaultThumbnailClippingRectGetter;
+  defaultThumbnailClippingRectGetter;
 
   /// {@macro soundGetter}
   late NullableStringGetter soundGetter;

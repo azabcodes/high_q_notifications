@@ -1,5 +1,7 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
 
+import '../../high_q_notifications.dart';
+
 class NotificationInfoModel {
   final AppState appState;
 
@@ -12,5 +14,3 @@ class NotificationInfoModel {
     required this.firebaseMessage,
   });
 }
-
-enum AppState { open, background, terminated }

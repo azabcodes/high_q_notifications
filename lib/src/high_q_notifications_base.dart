@@ -1,6 +1,5 @@
 // ignore: depend_on_referenced_packages
-import 'package:high_q_notifications/src/utils/download_image.dart';
-import 'package:high_q_notifications/src/utils/types_def.dart';
+
 import 'package:timezone/timezone.dart';
 import 'dart:async';
 import 'dart:convert';
@@ -8,11 +7,7 @@ import 'dart:io';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'models/local_notifications_configuration.dart';
-import 'models/notification_info.dart';
-import 'models/android_config.dart';
-import 'models/ios_config.dart';
+import '../high_q_notifications.dart';
 
 @pragma('vm:entry-point')
 void notificationTapBackground(NotificationResponse notificationResponse) {
@@ -20,10 +15,19 @@ void notificationTapBackground(NotificationResponse notificationResponse) {
     final message = RemoteMessage.fromMap(
       jsonDecode(notificationResponse.payload!),
     );
-    _HighQNotificationsState._notificationHandler(
-      message,
-      appState: AppState.background,
-    );
+
+    if (notificationResponse.notificationResponseType ==
+        NotificationResponseType.selectedNotificationAction) {
+      // Handle action in background
+      if (_HighQNotificationsState._onAction != null) {
+        _HighQNotificationsState._onAction!(notificationResponse, message);
+      }
+    } else {
+      _HighQNotificationsState._notificationHandler(
+        message,
+        appState: AppState.background,
+      );
+    }
   }
 }
 
@@ -56,6 +60,7 @@ class HighQNotifications extends StatefulWidget {
   final OnOpenNotificationArrive? onOpenNotificationArrive;
 
   final OnTapGetter? onTap;
+  final OnActionGetter? onAction;
 
   final Widget child;
 
@@ -63,6 +68,7 @@ class HighQNotifications extends StatefulWidget {
     super.key,
     this.vapidKey,
     this.onTap,
+    this.onAction,
     this.onFcmTokenInitialize,
     this.messageModifier,
     this.shouldHandleNotification,
@@ -78,6 +84,10 @@ class HighQNotifications extends StatefulWidget {
 
   static void setOnTap(OnTapGetter? onTap) {
     _HighQNotificationsState._onTap = onTap;
+  }
+
+  static void setOnAction(OnActionGetter? onAction) {
+    _HighQNotificationsState._onAction = onAction;
   }
 
   static void setOnOpenNotificationArrive(
@@ -134,8 +144,7 @@ class HighQNotifications extends StatefulWidget {
   static final requestPermission =
       _HighQNotificationsState._fcm.requestPermission;
 
-  static const initializeFcmToken =
-      _HighQNotificationsState.initializeFcmToken;
+  static const initializeFcmToken = _HighQNotificationsState.initializeFcmToken;
 
   static const sendLocalNotification =
       _HighQNotificationsState.sendLocalNotification;
@@ -220,60 +229,6 @@ class HighQNotifications extends StatefulWidget {
   /// {@endtemplate}
   static Stream<NotificationInfoModel> get notificationArrivesSubscription =>
       _HighQNotificationsState._notificationArriveSubscription.stream;
-
-  // removed as this API is deprecated
-  // /// Trigger FCM notification.
-  // ///
-  // /// [cloudMessagingServerKey] : The server key from the cloud messaging console.
-  // /// This key is required to trigger the notification.
-  // ///
-  // /// [title] : The notification's title.
-  // ///
-  // /// [body] : The notification's body.
-  // ///
-  // /// [imageUrl] : The notification's image URL.
-  // ///
-  // /// [fcmTokens] : List of the registered devices' tokens.
-  // ///
-  // /// [payload] : Notification payload, is provided in the [onTap] callback.
-  // ///
-  // /// [additionalHeaders] : Additional headers,
-  // /// other than 'Content-Type' and 'Authorization'.
-  // ///
-  // /// [notificationMeta] : Additional content that you might want to pass
-  // /// in the 'notification' attribute, apart from title, body, image.
-  // static Future<http.Response> sendFcmNotification({
-  //   required String cloudMessagingServerKey,
-  //   required String title,
-  //   required List<String> fcmTokens,
-  //   String? body,
-  //   String? imageUrl,
-  //   Map<String, dynamic>? payload,
-  //   Map<String, dynamic>? additionalHeaders,
-  //   Map<String, dynamic>? notificationMeta,
-  // }) async {
-  //   return await http.post(
-  //     Uri.parse('https://fcm.googleapis.com/fcm/send'),
-  //     headers: {
-  //       'Content-Type': 'application/json',
-  //       'Authorization': 'key=$cloudMessagingServerKey',
-  //       ...?additionalHeaders,
-  //     },
-  //     body: jsonEncode({
-  //       if (fcmTokens.length == 1) 'to': fcmTokens.first else 'registration_ids': fcmTokens,
-  //       'notification': {
-  //         'title': title,
-  //         'body': body,
-  //         'image': imageUrl,
-  //         ...?notificationMeta,
-  //       },
-  //       'data': {
-  //         'click_action': 'FLUTTER_NOTIFICATION_CLICK',
-  //         ...?payload,
-  //       },
-  //     }),
-  //   );
-  // }
 
   @override
   State<HighQNotifications> createState() => _HighQNotificationsState();
@@ -419,56 +374,60 @@ class _HighQNotificationsState extends State<HighQNotifications> {
     await _initializeLocalNotifications(forceInit: true);
   }
 
-  static Future<void> sendLocalNotification(
-    int id, {
+  static Future<void> sendLocalNotification({
+    required int id,
     required NotificationDetails notificationDetails,
     String? title,
     String? body,
     Map<String, dynamic>? payload,
     TZDateTime? scheduledDateTime,
     bool shouldForceInitNotifications = false,
-    /*UILocalNotificationDateInterpretation?
-        uiLocalNotificationDateInterpretation,*/
     AndroidScheduleMode? androidScheduleMode,
     DateTimeComponents? matchDateTimeComponents,
+    RepeatInterval? repeatInterval,
+    Duration? repeatDurationInterval,
   }) async {
     await _initializeLocalNotifications(
       forceInit: shouldForceInitNotifications,
     );
 
     final payloadStr = payload == null ? null : jsonEncode(payload);
+    try {
+      if (repeatDurationInterval != null) {
+        assert(
+          androidScheduleMode != null,
+          'androidScheduleMode cannot be null when using repeatDurationInterval',
+        );
 
-    if (scheduledDateTime == null) {
-      try {
-        await _flutterLocalNotificationsPlugin!.show(
+        await _flutterLocalNotificationsPlugin!.periodicallyShowWithDuration(
           id,
           title,
           body,
+          repeatDurationInterval,
           notificationDetails,
+          androidScheduleMode: androidScheduleMode!,
           payload: payloadStr,
         );
-      } catch (e, s) {
-        if (kDebugMode) {
-          print(
-            'Error:$e'
-            'StackTrace:$s',
-          );
-        }
+      } else if (repeatInterval != null) {
+        assert(
+          androidScheduleMode != null,
+          'androidScheduleMode cannot be null when using repeatInterval',
+        );
 
-        rethrow;
-      }
-    } else {
-      assert(
-        androidScheduleMode != null,
-        'androidScheduleMode cannot be null when scheduledDateTime is not null',
-      );
-
-      /* assert(
-        uiLocalNotificationDateInterpretation != null,
-        'uiLocalNotificationDateInterpretation cannot be null when scheduledDateTime is not null',
-      );*/
-
-      try {
+        await _flutterLocalNotificationsPlugin!.periodicallyShow(
+          id,
+          title,
+          body,
+          repeatInterval,
+          notificationDetails,
+          payload: payloadStr,
+          androidScheduleMode: androidScheduleMode!,
+        );
+      } else if (scheduledDateTime != null) {
+        assert(
+          androidScheduleMode != null,
+          'androidScheduleMode cannot be null when scheduledDateTime is not null',
+        );
         await _flutterLocalNotificationsPlugin!.zonedSchedule(
           id,
           title,
@@ -478,18 +437,24 @@ class _HighQNotificationsState extends State<HighQNotifications> {
           payload: payloadStr,
           androidScheduleMode: androidScheduleMode!,
           matchDateTimeComponents: matchDateTimeComponents,
-          /* uiLocalNotificationDateInterpretation:
-              uiLocalNotificationDateInterpretation!,*/
         );
-      } catch (e, s) {
-        if (kDebugMode) {
-          print(
-            'Error:$e'
-            'StackTrace:$s',
-          );
-        }
-        rethrow;
+      } else {
+        await _flutterLocalNotificationsPlugin!.show(
+          id,
+          title,
+          body,
+          notificationDetails,
+          payload: payloadStr,
+        );
       }
+    } catch (e, s) {
+      if (kDebugMode) {
+        print(
+          'Error:$e'
+          'StackTrace:$s',
+        );
+      }
+      rethrow;
     }
   }
 
@@ -569,7 +534,7 @@ class _HighQNotificationsState extends State<HighQNotifications> {
         requestProvisionalPermission:
             IosConfigModel.requestProvisionalPermission,
         requestCriticalPermission: IosConfigModel.requestCriticalPermission,
-        notificationCategories: [],
+        notificationCategories: IosConfigModel.notificationCategories,
       ),
     );
 
@@ -578,21 +543,27 @@ class _HighQNotificationsState extends State<HighQNotifications> {
         initializationSettings,
         onDidReceiveBackgroundNotificationResponse: notificationTapBackground,
         onDidReceiveNotificationResponse: (details) {
-          if (details.notificationResponseType !=
+          if (details.notificationResponseType ==
               NotificationResponseType.selectedNotification) {
-            return;
+            final tapDetails = NotificationInfoModel(
+              appState: AppState.open,
+              firebaseMessage: RemoteMessage.fromMap(
+                jsonDecode(details.payload!),
+              ),
+            );
+
+            _onTap?.call(tapDetails);
+            _notificationTapsSubscription.add(tapDetails);
+          } else if (details.notificationResponseType ==
+              NotificationResponseType.selectedNotificationAction) {
+            final message = RemoteMessage.fromMap(jsonDecode(details.payload!));
+            if (_onAction != null) {
+              _onAction!(details, message);
+            } else {
+              // Default behavior if no handler is set
+              print('User tapped Default');
+            }
           }
-          if (details.actionId == 'replay') {}
-
-          final tapDetails = NotificationInfoModel(
-            appState: AppState.open,
-            firebaseMessage: RemoteMessage.fromMap(
-              jsonDecode(details.payload!),
-            ),
-          );
-
-          _onTap?.call(tapDetails);
-          _notificationTapsSubscription.add(tapDetails);
         },
       );
     } catch (e, s) {
@@ -767,7 +738,7 @@ class _HighQNotificationsState extends State<HighQNotifications> {
       );
 
       await sendLocalNotification(
-        notificationId,
+        id: notificationId,
         title: message.notification?.title,
         body: message.notification?.body,
         payload: message.toMap(),
@@ -873,7 +844,7 @@ class _HighQNotificationsState extends State<HighQNotifications> {
   static BoolGetter? _shouldHandleNotification;
 
   static NotificationIdGetter? _notificationIdGetter;
-
+  static OnActionGetter? _onAction;
   static OnTapGetter? _onTap;
   static RemoteMessageGetter? _messageModifier;
   static FcmInitializeGetter? _onFCMTokenInitialize;
@@ -892,6 +863,7 @@ class _HighQNotificationsState extends State<HighQNotifications> {
         widget.localNotificationsConfiguration.iosConfig ?? IosConfigModel();
 
     _onTap = widget.onTap;
+    _onAction = widget.onAction;
     _onOpenNotificationArrive = widget.onOpenNotificationArrive;
 
     _messageModifier = widget.messageModifier == null
@@ -974,10 +946,10 @@ class _HighQNotificationsState extends State<HighQNotifications> {
       } catch (e, s) {
         if (kDebugMode) {
           print(
-            'Error:$e' 'StackTrace:$s',
+            'Error:$e'
+            'StackTrace:$s',
           );
         }
-
       }
 
       if (widget.handleInitialMessage) {

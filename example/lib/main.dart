@@ -15,6 +15,7 @@ void main() {
       shouldHandleNotification: (_) => true,
       onOpenNotificationArrive: (_) {},
       onTap: HandleNotificationsNavigation.handleNotificationTap,
+      onAction: HandleNotificationsActions.handleAction,
       onFcmTokenInitialize: (token) {
         NavigationService().fcmTokenNotifier.value = token;
       },

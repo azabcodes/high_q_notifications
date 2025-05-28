@@ -1,5 +1,5 @@
 #!/usr/bin/env dart
-
+// ignore_for_file: avoid_print
 import 'dart:io';
 
 Future<void> main() async {
@@ -288,10 +288,10 @@ final AndroidConfigModel androidConfig = AndroidConfigModel(
     return 'notification_sound';
   },
   importanceGetter: (RemoteMessage remoteMessage) {
-    return HighQNotificationsImportance.max;
+    return Importance.max;
   },
   priorityGetter: (RemoteMessage remoteMessage) {
-    return HighQNotificationsPriority.max;
+    return Priority.max;
   },
   imageUrlGetter: (RemoteMessage remoteMessage) {
     if (remoteMessage.data.containsKey('image') &&
@@ -415,6 +415,7 @@ export 'configs/ios_config.dart';
 export 'utils/handle_navigation.dart';
 export 'utils/navigation_service.dart';
 export 'utils/notifications_type.dart';
+export 'utils/handle_actions.dart';
 ''';
 
   await exportsFile.create(recursive: true);
