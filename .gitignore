@@ -31,6 +31,4 @@ migrate_working_dir/
 build/
 
 example/lib/firebase-adminsdk.json
-example/android/app/google-services.json
-example/ios/Runner/GoogleService-Info.plist
 
