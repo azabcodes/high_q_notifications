@@ -44,5 +44,3 @@ This package is open-source and your help is always welcome.
 Open an issue or start a discussion — I’m happy to help!
 
 Thanks again 🙌
-
-````

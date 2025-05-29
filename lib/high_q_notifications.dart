@@ -15,3 +15,4 @@ export 'src/high_q_notifications_base.dart';
 export 'package:flutter_local_notifications/flutter_local_notifications.dart';
 export 'src/utils/app_state.dart';
 export 'src/models/notification_action_info_model.dart';
+
