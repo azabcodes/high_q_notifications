@@ -10,7 +10,6 @@ final IosConfigModel iosConfig = IosConfigModel(
   soundGetter: (RemoteMessage remoteMessage) {
     return 'notification_sound.caf';
   },
-
   categoryGetter: (RemoteMessage message) {
     final data = message.data['categories'];
     if (data == null) return IosConfigModel.defaultCategories;
@@ -48,4 +47,16 @@ final IosConfigModel iosConfig = IosConfigModel(
       );
     }).toList();
   },
+  subtitleGetter: (msg) => msg.notification?.apple?.subtitle,
+  imageUrlGetter: (msg) => msg.notification?.apple?.imageUrl,
+  badgeNumberGetter: (_) => 1,
+  categoryIdentifierGetter: (_) => 'custom_category',
+  threadIdentifierGetter: (_) => 'thread_1',
+  interruptionLevelGetter: (_) => InterruptionLevel.active,
+  presentAlertGetter: (_) => true,
+  presentBadgeGetter: (_) => true,
+  presentBannerGetter: (_) => true,
+  presentListGetter: (_) => true,
+  hideThumbnailGetter: (_) => false,
+  thumbnailClippingRectGetter: (_) => null,
 );

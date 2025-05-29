@@ -4,6 +4,112 @@ import '../../high_q_notifications.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 
 class AndroidConfigModel {
+  late AndroidActionsGetter? actionsGetter;
+
+  static String defaultChannelId = 'default';
+  static String defaultChannelName = 'Default';
+  static String defaultChannelDescription =
+      'Default channel for all notifications';
+  static String defaultAppIcon = '@mipmap/ic_launcher';
+  static String? defaultSound;
+  static Importance defaultImportance = Importance.defaultImportance;
+  static Priority defaultPriority = Priority.defaultPriority;
+  static String? defaultGroupKey;
+  static String? defaultIcon;
+  static String? defaultImageUrl;
+  static String? defaultSmallIcon;
+  static Color? defaultColor;
+  static bool autoCancel = true;
+  static bool silent = false;
+  static bool fullScreenIntent = true;
+  static Int32List additionalFlags = Int32List.fromList([]);
+  static String? defaultTag;
+  static bool defaultHideExpandedLargeIcon = true;
+  static bool defaultPlaySound = true;
+  static bool defaultEnableVibration = true;
+  static List<AndroidNotificationAction> defaultActions = [];
+  static bool defaultEnableLights = true;
+  static bool channelBypassDnd = false;
+  static bool setAsGroupSummary = false;
+  static GroupAlertBehavior groupAlertBehavior = GroupAlertBehavior.all;
+  static bool ongoing = false;
+  static bool onlyAlertOnce = false;
+  static bool showWhen = true;
+  static int? when;
+  static bool usesChronometer = false;
+  static bool chronometerCountDown = false;
+  static bool showProgress = false;
+  static int maxProgress = 0;
+  static int progress = 0;
+  static bool indeterminate = false;
+  static Color? ledColor;
+  static int? ledOnMs;
+  static int? ledOffMs;
+  static String? ticker;
+  static AndroidNotificationChannelAction channelAction =
+      AndroidNotificationChannelAction.createIfNotExists;
+  static NotificationVisibility? visibility;
+  static int? timeoutAfter;
+  static AndroidNotificationCategory? category;
+  static String? shortcutId;
+  static String? subText;
+  static bool colorized = false;
+  static int? number;
+  static AudioAttributesUsage audioAttributesUsage =
+      AudioAttributesUsage.notification;
+  static Int64List? vibrationPattern;
+  static bool channelShowBadge = true;
+
+  late StringGetter channelIdGetter;
+  late StringGetter channelNameGetter;
+  late StringGetter channelDescriptionGetter;
+  late StringGetter appIconGetter;
+  late NullableStringGetter soundGetter;
+  late AndroidImportanceGetter importanceGetter;
+  late AndroidPriorityGetter priorityGetter;
+  late NullableStringGetter groupKeyGetter;
+  late AndroidFlagGetter additionalFlagsGetter;
+  late NullableStringGetter iconGetter;
+  late NullableStringGetter imageUrlGetter;
+  late NullableStringGetter smallIconUrlGetter;
+  late NullableColorGetter colorGetter;
+  late BoolGetter autoCancelGetter;
+  late BoolGetter silentGetter;
+  late BoolGetter fullScreenIntentGetter;
+  late NullableStringGetter tagGetter;
+  late BoolGetter hideExpandedLargeIconGetter;
+  late BoolGetter playSoundGetter;
+  late BoolGetter enableVibrationGetter;
+  late BoolGetter enableLightsGetter;
+  late BoolGetter channelBypassDndGetter;
+  late BoolGetter setAsGroupSummaryGetter;
+  late GroupAlertBehaviorGetter groupAlertBehaviorGetter;
+  late BoolGetter ongoingGetter;
+  late BoolGetter onlyAlertOnceGetter;
+  late BoolGetter showWhenGetter;
+  late NullableIntGetter whenGetter;
+  late BoolGetter usesChronometerGetter;
+  late BoolGetter chronometerCountDownGetter;
+  late BoolGetter showProgressGetter;
+  late IntGetter maxProgressGetter;
+  late IntGetter progressGetter;
+  late BoolGetter indeterminateGetter;
+  late NullableColorGetter ledColorGetter;
+  late NullableIntGetter ledOnMsGetter;
+  late NullableIntGetter ledOffMsGetter;
+  late NullableStringGetter tickerGetter;
+  late AndroidNotificationChannelActionGetter channelActionGetter;
+  late NotificationVisibilityGetter visibilityGetter;
+  late NullableIntGetter timeoutAfterGetter;
+  late AndroidNotificationCategoryGetter categoryGetter;
+  late NullableStringGetter shortcutIdGetter;
+  late NullableStringGetter subTextGetter;
+  late BoolGetter colorizedGetter;
+  late NullableIntGetter numberGetter;
+  late AudioAttributesUsageGetter audioAttributesUsageGetter;
+  late NullableInt64ListGetter vibrationPatternGetter;
+  late BoolGetter channelShowBadgeGetter;
+
   AndroidConfigModel({
     StringGetter? channelIdGetter,
     StringGetter? channelNameGetter,
@@ -128,169 +234,6 @@ class AndroidConfigModel {
     this.enableVibrationGetter =
         enableVibrationGetter ?? (_) => defaultEnableVibration;
     this.actionsGetter = actionsGetter ?? (_) => defaultActions;
-  }
-
-  late AndroidActionsGetter? actionsGetter;
-
-  static String defaultChannelId = 'default';
-  static String defaultChannelName = 'Default';
-  static String defaultChannelDescription =
-      'Default channel for all notifications';
-  static String defaultAppIcon = '@mipmap/ic_launcher';
-  static String? defaultSound;
-  static Importance defaultImportance = Importance.defaultImportance;
-  static Priority defaultPriority = Priority.defaultPriority;
-  static String? defaultGroupKey;
-  static String? defaultIcon;
-  static String? defaultImageUrl;
-  static String? defaultSmallIcon;
-  static Color? defaultColor;
-  static bool autoCancel = true;
-  static bool silent = false;
-  static bool fullScreenIntent = true;
-  static Int32List additionalFlags = Int32List.fromList([]);
-  static String? defaultTag;
-  static bool defaultHideExpandedLargeIcon = true;
-  static bool defaultPlaySound = true;
-  static bool defaultEnableVibration = true;
-  static List<AndroidNotificationAction> defaultActions = [];
-  static bool defaultEnableLights = true;
-  static bool channelBypassDnd = false;
-  static bool setAsGroupSummary = false;
-  static GroupAlertBehavior groupAlertBehavior = GroupAlertBehavior.all;
-  static bool ongoing = false;
-  static bool onlyAlertOnce = false;
-  static bool showWhen = true;
-  static int? when;
-  static bool usesChronometer = false;
-  static bool chronometerCountDown = false;
-  static bool showProgress = false;
-  static int maxProgress = 0;
-  static int progress = 0;
-  static bool indeterminate = false;
-  static Color? ledColor;
-  static int? ledOnMs;
-  static int? ledOffMs;
-  static String? ticker;
-  static AndroidNotificationChannelAction channelAction =
-      AndroidNotificationChannelAction.createIfNotExists;
-  static NotificationVisibility? visibility;
-  static int? timeoutAfter;
-  static AndroidNotificationCategory? category;
-  static String? shortcutId;
-  static String? subText;
-  static bool colorized = false;
-  static int? number;
-  static AudioAttributesUsage audioAttributesUsage =
-      AudioAttributesUsage.notification;
-  static Int64List? vibrationPattern;
-  static bool channelShowBadge = true;
-
-  late StringGetter channelIdGetter;
-  late StringGetter channelNameGetter;
-  late StringGetter channelDescriptionGetter;
-  late StringGetter appIconGetter;
-  late NullableStringGetter soundGetter;
-  late AndroidImportanceGetter importanceGetter;
-  late AndroidPriorityGetter priorityGetter;
-  late NullableStringGetter groupKeyGetter;
-  late AndroidFlagGetter additionalFlagsGetter;
-  late NullableStringGetter iconGetter;
-  late NullableStringGetter imageUrlGetter;
-  late NullableStringGetter smallIconUrlGetter;
-  late NullableColorGetter colorGetter;
-  late BoolGetter autoCancelGetter;
-  late BoolGetter silentGetter;
-  late BoolGetter fullScreenIntentGetter;
-  late NullableStringGetter tagGetter;
-  late BoolGetter hideExpandedLargeIconGetter;
-  late BoolGetter playSoundGetter;
-  late BoolGetter enableVibrationGetter;
-  late BoolGetter enableLightsGetter;
-  late BoolGetter channelBypassDndGetter;
-  late BoolGetter setAsGroupSummaryGetter;
-  late GroupAlertBehaviorGetter groupAlertBehaviorGetter;
-  late BoolGetter ongoingGetter;
-  late BoolGetter onlyAlertOnceGetter;
-  late BoolGetter showWhenGetter;
-  late NullableIntGetter whenGetter;
-  late BoolGetter usesChronometerGetter;
-  late BoolGetter chronometerCountDownGetter;
-  late BoolGetter showProgressGetter;
-  late IntGetter maxProgressGetter;
-  late IntGetter progressGetter;
-  late BoolGetter indeterminateGetter;
-  late NullableColorGetter ledColorGetter;
-  late NullableIntGetter ledOnMsGetter;
-  late NullableIntGetter ledOffMsGetter;
-  late NullableStringGetter tickerGetter;
-  late AndroidNotificationChannelActionGetter channelActionGetter;
-  late NotificationVisibilityGetter visibilityGetter;
-  late NullableIntGetter timeoutAfterGetter;
-  late AndroidNotificationCategoryGetter categoryGetter;
-  late NullableStringGetter shortcutIdGetter;
-  late NullableStringGetter subTextGetter;
-  late BoolGetter colorizedGetter;
-  late NullableIntGetter numberGetter;
-  late AudioAttributesUsageGetter audioAttributesUsageGetter;
-  late NullableInt64ListGetter vibrationPatternGetter;
-  late BoolGetter channelShowBadgeGetter;
-
-  Importance _mapImportance(HighQNotificationsImportance importance) {
-    switch (importance) {
-      case HighQNotificationsImportance.min:
-        return Importance.min;
-      case HighQNotificationsImportance.low:
-        return Importance.low;
-      case HighQNotificationsImportance.defaultImportance:
-        return Importance.defaultImportance;
-      case HighQNotificationsImportance.high:
-        return Importance.high;
-      case HighQNotificationsImportance.max:
-        return Importance.max;
-    }
-  }
-
-  Int32List _mapAdditionalFlags(AndroidNotificationFlag flag) {
-    switch (flag) {
-      case AndroidNotificationFlag.insistent:
-        return Int32List.fromList([1]); // FLAG_INSISTENT
-      case AndroidNotificationFlag.ongoingEvent:
-        return Int32List.fromList([2]); // FLAG_ONGOING_EVENT
-      case AndroidNotificationFlag.onlyAlertOnce:
-        return Int32List.fromList([4]); // FLAG_ONLY_ALERT_ONCE
-      case AndroidNotificationFlag.autoCancel:
-        return Int32List.fromList([8]); // FLAG_AUTO_CANCEL
-      case AndroidNotificationFlag.noClear:
-        return Int32List.fromList([16]); // FLAG_NO_CLEAR
-      case AndroidNotificationFlag.foregroundService:
-        return Int32List.fromList([32]); // FLAG_FOREGROUND_SERVICE
-      case AndroidNotificationFlag.highPriority:
-        return Int32List.fromList([64]); // FLAG_HIGH_PRIORITY
-      case AndroidNotificationFlag.showLights:
-        return Int32List.fromList([128]); // FLAG_SHOW_LIGHTS
-      case AndroidNotificationFlag.groupSummary:
-        return Int32List.fromList([256]); // FLAG_GROUP_SUMMARY
-      case AndroidNotificationFlag.useColorized:
-        return Int32List.fromList([512]); // FLAG_USE_COLORIZED
-      case AndroidNotificationFlag.colorized:
-        return Int32List.fromList([1024]); // FLAG_COLORIZED
-    }
-  }
-
-  Priority _mapPriority(HighQNotificationsPriority priority) {
-    switch (priority) {
-      case HighQNotificationsPriority.min:
-        return Priority.min;
-      case HighQNotificationsPriority.low:
-        return Priority.low;
-      case HighQNotificationsPriority.defaultPriority:
-        return Priority.defaultPriority;
-      case HighQNotificationsPriority.high:
-        return Priority.high;
-      case HighQNotificationsPriority.max:
-        return Priority.max;
-    }
   }
 
   AndroidNotificationDetails toSpecifics(

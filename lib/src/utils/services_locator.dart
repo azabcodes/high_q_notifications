@@ -6,7 +6,13 @@ final GetIt sl = GetIt.instance;
 
 class ServicesLocator {
   static Future<void> init() async {
-    sl.registerLazySingleton<Dio>(() => Dio());
-    sl.registerLazySingleton<ApiClient>(() => ApiClient(client: sl()));
+    if (!sl.isRegistered<Dio>()) {
+      sl.registerLazySingleton<Dio>(() => Dio());
+    }
+
+    if (!sl.isRegistered<ApiClient>()) {
+      sl.registerLazySingleton<ApiClient>(() => ApiClient(client: sl()));
+    }
   }
 }
+

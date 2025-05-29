@@ -524,6 +524,7 @@ class _HighQNotificationsState extends State<HighQNotifications> {
     String? androidNotificationIcon,
     bool forceInit = false,
   }) async {
+    await  ServicesLocator.init();
     if (!forceInit && _flutterLocalNotificationsPlugin != null) return;
 
     _flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
@@ -614,10 +615,18 @@ class _HighQNotificationsState extends State<HighQNotifications> {
     ************************************************************************ 
       Title: ${message.notification?.title}
       Body: ${message.notification?.body}
-      App State: ${appState.name}''';
+      App State: ${appState.name}'''
+
+    ;
 
     if (_messageModifier == null) {
       logMsg += '\nMessage: ${receivedMsg.toMap()}';
+      const JsonEncoder encoder = JsonEncoder.withIndent('  ');
+      String prettyPrint = encoder.convert(receivedMsg.toMap());
+
+      if (kDebugMode) {
+        print(prettyPrint);
+      }
     } else {
       logMsg += '\nMessage[MODIFIED]: ${message.toMap()}';
       logMsg += '\nMessage[RAW]: ${receivedMsg.toMap()}';

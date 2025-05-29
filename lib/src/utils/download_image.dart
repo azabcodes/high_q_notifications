@@ -27,6 +27,7 @@ Future<String?> downloadImage({String? url, String? fileName}) async {
       },
       (r) async {
         await file.writeAsBytes(r.data as List<int>);
+
       },
     );
 
