@@ -9,7 +9,7 @@ Future<void> main() async {
   await createNotificationServiceFiles();
 
   /// ========== Android build.gradle.kts Configuration ==========
-  final buildGradleKtsPath = 'android/app/build.gradle.kts';
+  /* final buildGradleKtsPath = 'android/app/build.gradle.kts';
   final buildGradleKtsFile = File(buildGradleKtsPath);
 
   if (!buildGradleKtsFile.existsSync()) {
@@ -120,6 +120,118 @@ dependencies {
       buildGradleKtsFile.writeAsStringSync(gradleContent);
       print('🎉 build.gradle.kts updated successfully!');
     }
+  }*/
+
+  final buildGradleKtsPath = 'android/app/build.gradle.kts';
+  final buildGradleKtsFile = File(buildGradleKtsPath);
+
+  if (!buildGradleKtsFile.existsSync()) {
+    print('❌ build.gradle.kts not found at $buildGradleKtsPath');
+    return;
+  }
+
+  var gradleContent = buildGradleKtsFile.readAsStringSync();
+  bool updated = false;
+
+  const coreKtx = 'implementation("androidx.core:core-ktx:1.12.0")';
+  const desugarLib =
+      'coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")';
+
+  final dependenciesRegex = RegExp(r'dependencies\s*{([\s\S]*?)\n}');
+  final match = dependenciesRegex.firstMatch(gradleContent);
+
+  if (match != null) {
+    String fullBlock = match.group(0)!;
+    String updatedBlock = fullBlock;
+
+    if (!fullBlock.contains(coreKtx)) {
+      updatedBlock = updatedBlock.replaceFirst('{', '{\n    $coreKtx');
+    }
+
+    if (!fullBlock.contains(desugarLib)) {
+      updatedBlock = updatedBlock.replaceFirst('{', '{\n    $desugarLib');
+    }
+
+    if (updatedBlock != fullBlock) {
+      gradleContent = gradleContent.replaceFirst(fullBlock, updatedBlock);
+      print('✅ Updated existing dependencies block');
+      updated = true;
+    } else {
+      print('ℹ️ Dependencies already present');
+    }
+  } else {
+    final flutterBlockRegex = RegExp(r'flutter\s*{[\s\S]*?}');
+    final flutterMatch = flutterBlockRegex.firstMatch(gradleContent);
+
+    final newBlock =
+        '''
+dependencies {
+    $coreKtx
+    $desugarLib
+}
+''';
+
+    if (flutterMatch != null) {
+      final insertIndex = flutterMatch.end;
+      gradleContent = gradleContent.replaceRange(
+        insertIndex,
+        insertIndex,
+        '\n\n$newBlock\n',
+      );
+      print('✅ Added dependencies block after flutter block');
+      updated = true;
+    } else {
+      gradleContent += '\n\n$newBlock\n';
+      print('✅ Appended dependencies block at end of file');
+      updated = true;
+    }
+  }
+
+  final defaultConfigRegex = RegExp(r'defaultConfig\s*{');
+  if (defaultConfigRegex.hasMatch(gradleContent)) {
+    final match = defaultConfigRegex.firstMatch(gradleContent)!;
+    final insertIndex = match.end;
+    if (!gradleContent.contains('multiDexEnabled = true')) {
+      gradleContent = gradleContent.replaceRange(
+        insertIndex,
+        insertIndex,
+        '\n        multiDexEnabled = true',
+      );
+      print('✅ Added multiDexEnabled = true inside defaultConfig');
+      updated = true;
+    } else {
+      print('ℹ️ multiDexEnabled already exists in defaultConfig');
+    }
+  } else {
+    print('❌ Could not find defaultConfig block');
+  }
+
+  final compileOptionsRegex = RegExp(r'compileOptions\s*{');
+  if (compileOptionsRegex.hasMatch(gradleContent)) {
+    final match = compileOptionsRegex.firstMatch(gradleContent)!;
+    final insertIndex = match.end;
+    if (!gradleContent.contains('isCoreLibraryDesugaringEnabled = true')) {
+      gradleContent = gradleContent.replaceRange(
+        insertIndex,
+        insertIndex,
+        '\n        isCoreLibraryDesugaringEnabled = true',
+      );
+      print(
+        '✅ Added isCoreLibraryDesugaringEnabled = true inside compileOptions',
+      );
+      updated = true;
+    } else {
+      print('ℹ️ isCoreLibraryDesugaringEnabled already exists');
+    }
+  } else {
+    print('❌ Could not find compileOptions block');
+  }
+
+  if (updated) {
+    buildGradleKtsFile.writeAsStringSync(gradleContent);
+    print('🎉 build.gradle.kts updated successfully!');
+  } else {
+    print('ℹ️ No changes detected. File not updated.');
   }
 
   /// ========== Android Configuration ==========
@@ -415,6 +527,7 @@ Future<void> createNotificationServiceFiles() async {
   final files = <String, String>{
     '$basePath/configs/android_config.dart': '''
 import 'dart:convert';
+import 'dart:typed_data';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:high_q_notifications/high_q_notifications.dart';
@@ -425,6 +538,9 @@ final AndroidConfigModel androidConfig = AndroidConfigModel(
   },
   channelNameGetter: (RemoteMessage remoteMessage) {
     return 'Test App Notification';
+  },
+  autoCancelGetter: (RemoteMessage remoteMessage) {
+    return false;
   },
   actionsGetter: (RemoteMessage message) {
     final data = message.data['action_buttons'];
@@ -446,7 +562,6 @@ final AndroidConfigModel androidConfig = AndroidConfigModel(
       );
     }).toList();
   },
-
   colorGetter: (RemoteMessage remoteMessage) {
     return Colors.red;
   },
@@ -460,21 +575,145 @@ final AndroidConfigModel androidConfig = AndroidConfigModel(
     return 'notification_sound';
   },
   importanceGetter: (RemoteMessage remoteMessage) {
-    return Importance.max;
+    return Importance.low;
   },
   priorityGetter: (RemoteMessage remoteMessage) {
-    return Priority.max;
+    return Priority.low;
+  },
+  fullScreenIntentGetter: (RemoteMessage remoteMessage) {
+    return false;
+  },
+  silentGetter: (RemoteMessage remoteMessage) {
+    return false;
   },
   imageUrlGetter: (RemoteMessage remoteMessage) {
-    if (remoteMessage.data.containsKey('image') &&
-        remoteMessage.data['image'] != null) {
+    if (remoteMessage.data.containsKey('image') && remoteMessage.data['image'] != null) {
       return remoteMessage.data['image'];
+    }
+    if (remoteMessage.data.containsKey('imageUrl') && remoteMessage.data['imageUrl'] != null) {
+      return remoteMessage.data['imageUrl'];
     }
     return null;
   },
+  additionalFlagsGetter: (RemoteMessage remoteMessage) {
+    return [
+      /* AndroidNotificationFlag.autoCancel,
+      AndroidNotificationFlag.showLights, */
+    ];
+  },
+  channelBypassDndGetter: (RemoteMessage remoteMessage) {
+    return false;
+  },
+  setAsGroupSummaryGetter: (RemoteMessage remoteMessage) {
+    return false;
+  },
+  groupAlertBehaviorGetter: (RemoteMessage remoteMessage) {
+    return GroupAlertBehavior.all;
+  },
+  ongoingGetter: (RemoteMessage remoteMessage) {
+    return false;
+  },
+  onlyAlertOnceGetter: (RemoteMessage remoteMessage) {
+    return false;
+  },
+  showWhenGetter: (RemoteMessage remoteMessage) {
+    return true;
+  },
+  whenGetter: (RemoteMessage remoteMessage) {
+    return null;
+  },
+  usesChronometerGetter: (RemoteMessage remoteMessage) {
+    return false;
+  },
+  chronometerCountDownGetter: (RemoteMessage remoteMessage) {
+    return false;
+  },
+  showProgressGetter: (RemoteMessage remoteMessage) {
+    return false;
+  },
+  maxProgressGetter: (RemoteMessage remoteMessage) {
+    return 100;
+  },
+  progressGetter: (RemoteMessage remoteMessage) {
+    return 0;
+  },
+  indeterminateGetter: (RemoteMessage remoteMessage) {
+    return false;
+  },
+  ledColorGetter: (RemoteMessage remoteMessage) {
+    return Colors.blue;
+  },
+  ledOnMsGetter: (RemoteMessage remoteMessage) {
+    return 1000;
+  },
+  ledOffMsGetter: (RemoteMessage remoteMessage) {
+    return 1000;
+  },
+  tickerGetter: (RemoteMessage remoteMessage) {
+    return 'New notification';
+  },
+  channelActionGetter: (RemoteMessage remoteMessage) {
+    return AndroidNotificationChannelAction.createIfNotExists;
+  },
+  visibilityGetter: (RemoteMessage remoteMessage) {
+    return NotificationVisibility.public;
+  },
+  timeoutAfterGetter: (RemoteMessage remoteMessage) {
+    return null;
+  },
+  categoryGetter: (RemoteMessage remoteMessage) {
+    return AndroidNotificationCategory.message;
+  },
+  shortcutIdGetter: (RemoteMessage remoteMessage) {
+    return null;
+  },
+  subTextGetter: (RemoteMessage remoteMessage) {
+    return null;
+  },
+  colorizedGetter: (RemoteMessage remoteMessage) {
+    return false;
+  },
+  numberGetter: (RemoteMessage remoteMessage) {
+    return null;
+  },
+  audioAttributesUsageGetter: (RemoteMessage remoteMessage) {
+    return AudioAttributesUsage.notification;
+  },
+  vibrationPatternGetter: (RemoteMessage remoteMessage) {
+    return Int64List.fromList([0, 500, 1000, 500]);
+  },
+  channelShowBadgeGetter: (RemoteMessage remoteMessage) {
+    return true;
+  },
+  iconGetter: (RemoteMessage remoteMessage) {
+    return '@drawable/notification_icon';
+  },
+  /* smallIconUrlGetter: (RemoteMessage remoteMessage) {
+    return '@drawable/notification_icon';
+  },*/
+  tagGetter: (RemoteMessage remoteMessage) {
+    return 'notification_tag';
+  },
+  hideExpandedLargeIconGetter: (RemoteMessage remoteMessage) {
+    return false;
+  },
+  playSoundGetter: (RemoteMessage remoteMessage) {
+    return true;
+  },
+  enableLightsGetter: (RemoteMessage remoteMessage) {
+    return true;
+  },
+  enableVibrationGetter: (RemoteMessage remoteMessage) {
+    return true;
+  },
+  groupKeyGetter: (RemoteMessage remoteMessage) {
+    return null;
+  },
 );
+
 ''',
     '$basePath/configs/ios_config.dart': '''
+import 'dart:convert';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:high_q_notifications/high_q_notifications.dart';
 
@@ -485,7 +724,57 @@ final IosConfigModel iosConfig = IosConfigModel(
   soundGetter: (RemoteMessage remoteMessage) {
     return 'notification_sound.caf';
   },
+  categoryGetter: (RemoteMessage message) {
+    final data = message.data['categories'];
+    if (data == null) return IosConfigModel.defaultCategories;
+
+    final decoded = jsonDecode(data) as List<dynamic>;
+
+    return decoded.map<DarwinNotificationCategory>((item) {
+      final id = item['id'] ?? 'default_category_id';
+
+      final List<DarwinNotificationAction> actions = [];
+
+      if (item['actions'] != null) {
+        final decodedActions = item['actions'] as List<dynamic>;
+        for (var actionItem in decodedActions) {
+          actions.add(
+            DarwinNotificationAction.text(
+              actionItem['id'] ?? 'reply_action',
+              actionItem['title'] ?? 'Reply',
+              buttonTitle: 'Send',
+              placeholder: 'Type your reply here',
+              options: <DarwinNotificationActionOption>{
+                DarwinNotificationActionOption.foreground,
+              },
+            ),
+          );
+        }
+      }
+
+      return DarwinNotificationCategory(
+        id,
+        actions: actions,
+        options: <DarwinNotificationCategoryOption>{
+          DarwinNotificationCategoryOption.customDismissAction,
+        },
+      );
+    }).toList();
+  },
+  subtitleGetter: (msg) => msg.notification?.apple?.subtitle,
+  imageUrlGetter: (msg) => msg.notification?.apple?.imageUrl,
+  badgeNumberGetter: (_) => 1,
+  categoryIdentifierGetter: (_) => 'custom_category',
+  threadIdentifierGetter: (_) => 'thread_1',
+  interruptionLevelGetter: (_) => InterruptionLevel.active,
+  presentAlertGetter: (_) => true,
+  presentBadgeGetter: (_) => true,
+  presentBannerGetter: (_) => true,
+  presentListGetter: (_) => true,
+  hideThumbnailGetter: (_) => false,
+  thumbnailClippingRectGetter: (_) => null,
 );
+
 ''',
 
     '$basePath/utils/handle_navigation.dart': '''
@@ -656,13 +945,24 @@ class HandleNotificationsActions {
   final mainCopyFile = File(mainCopyPath);
 
   const mainCopyContent = '''
+import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:high_q_notifications/high_q_notifications.dart';
-
+import 'firebase_options.dart';
 import 'notification_service/exports.dart';
 
-void main() {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  try {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+  } catch (error) {
+    if (kDebugMode) {
+      print(error);
+    }
+  }
   runApp(
     HighQNotifications(
       requestPermissionsOnInitialize: true,
@@ -684,11 +984,77 @@ void main() {
         debugShowCheckedModeBanner: false,
         navigatorKey: NavigationService().navigatorKey,
         scaffoldMessengerKey: NavigationService().scaffoldMessengerState,
-        home: Scaffold(appBar: AppBar(title: Text('High Q Notifications'))),
+        home: HomePage(),
       ),
     ),
   );
 }
+
+class HomePage extends StatelessWidget {
+  const HomePage({super.key});
+
+  static const String _topic = 'First';
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('High Q Notifications'),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          children: [
+            _buildButton(
+              label: 'Subscribe to Topic',
+              onPressed: () {
+                HighQNotifications.subscribeToTopic(topic: _topic);
+              },
+            ),
+            _buildButton(
+              label: 'Unsubscribe from Topic',
+              onPressed: () {
+                HighQNotifications.unsubscribeFromTopic(topic: _topic);
+              },
+            ),
+            _buildButton(
+              label: 'Subscribe to Topics',
+              onPressed: () {
+                HighQNotifications.subscribeToTopics(topics: [_topic]);
+              },
+            ),
+            _buildButton(
+              label: 'Unsubscribe from Topics',
+              onPressed: () {
+                HighQNotifications.unsubscribeFromTopics(topics: [_topic]);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildButton({
+    required String label,
+    required VoidCallback onPressed,
+  }) {
+    return MaterialButton(
+      color: Colors.black,
+      minWidth: double.infinity,
+      onPressed: onPressed,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      child: Text(
+        label,
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 16,
+        ),
+      ),
+    );
+  }
+}
+
 ''';
 
   await mainCopyFile.writeAsString(mainCopyContent, mode: FileMode.write);
