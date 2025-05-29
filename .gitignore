@@ -30,9 +30,4 @@ migrate_working_dir/
 .flutter-plugins-dependencies
 build/
 
-example/scripts/notifications/get_access_token.sh
-example/scripts/notifications/push_notifications.sh
-example/lib/firebase-adminsdk.json
-example/android/app/google-services.json
-example/ios/Runner/GoogleService-Info.plist
 
