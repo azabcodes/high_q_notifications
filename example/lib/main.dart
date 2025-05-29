@@ -2,7 +2,6 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:high_q_notifications/high_q_notifications.dart';
-
 import 'firebase_options.dart';
 import 'notification_service/exports.dart';
 
@@ -44,22 +43,67 @@ Future<void> main() async {
   );
 }
 
-class HomePage extends StatefulWidget {
+class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
-  @override
-  State<HomePage> createState() => _HomePageState();
-}
-
-class _HomePageState extends State<HomePage> {
-  @override
-  void initState() {
-    HighQNotifications.subscribeToTopic(topic: 'First');
-    super.initState();
-  }
+  static const String _topic = 'First';
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(appBar: AppBar(title: Text('High Q Notifications')));
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('High Q Notifications'),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          children: [
+            _buildButton(
+              label: 'Subscribe to Topic',
+              onPressed: () {
+                HighQNotifications.subscribeToTopic(topic: _topic);
+              },
+            ),
+            _buildButton(
+              label: 'Unsubscribe from Topic',
+              onPressed: () {
+                HighQNotifications.unsubscribeFromTopic(topic: _topic);
+              },
+            ),
+            _buildButton(
+              label: 'Subscribe to Topics',
+              onPressed: () {
+                HighQNotifications.subscribeToTopics(topics: [_topic]);
+              },
+            ),
+            _buildButton(
+              label: 'Unsubscribe from Topics',
+              onPressed: () {
+                HighQNotifications.unsubscribeFromTopics(topics: [_topic]);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildButton({
+    required String label,
+    required VoidCallback onPressed,
+  }) {
+    return MaterialButton(
+      color: Colors.black,
+      minWidth: double.infinity,
+      onPressed: onPressed,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      child: Text(
+        label,
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 16,
+        ),
+      ),
+    );
   }
 }

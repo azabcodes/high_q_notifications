@@ -883,9 +883,6 @@ class _HighQNotificationsState extends State<HighQNotifications> {
     return '';
   }
 
-  // Track subscribed topics
-  static final Set<String> _subscribedTopics = {};
-
   // Topic subscription implementation
   static Future<void> _subscribeToTopic({required String topic}) async {
     try {
@@ -900,7 +897,6 @@ class _HighQNotificationsState extends State<HighQNotifications> {
       }
 
       await FirebaseMessaging.instance.subscribeToTopic(topic);
-      _subscribedTopics.add(topic);
 
       if (HighQNotifications.enableLogs && kDebugMode) {
         if (kDebugMode) {
@@ -928,7 +924,6 @@ class _HighQNotificationsState extends State<HighQNotifications> {
       }
 
       await FirebaseMessaging.instance.unsubscribeFromTopic(topic);
-      _subscribedTopics.remove(topic);
 
       if (HighQNotifications.enableLogs && kDebugMode) {
         if (kDebugMode) {
