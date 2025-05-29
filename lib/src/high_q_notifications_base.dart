@@ -243,6 +243,14 @@ class HighQNotifications extends StatefulWidget {
   static Stream<NotificationInfoModel> get notificationArrivesSubscription =>
       _HighQNotificationsState._notificationArriveSubscription.stream;
 
+  // Topic subscription methods following the same pattern
+  static final subscribeToTopic = _HighQNotificationsState._subscribeToTopic;
+  static final unsubscribeFromTopic =
+      _HighQNotificationsState._unsubscribeFromTopic;
+  static final subscribeToTopics = _HighQNotificationsState._subscribeToTopics;
+  static final unsubscribeFromTopics =
+      _HighQNotificationsState._unsubscribeFromTopics;
+
   @override
   State<HighQNotifications> createState() => _HighQNotificationsState();
 }
@@ -261,6 +269,24 @@ class _HighQNotificationsState extends State<HighQNotifications> {
       StreamController<NotificationInfoModel>.broadcast();
   static StreamSubscription<RemoteMessage>? _onMessageSubscription;
   static StreamSubscription<RemoteMessage>? _onMessageOpenedAppSubscription;
+
+  static final _handledNotifications = <String>{};
+
+  static bool _openedAppFromNotification = false;
+
+  static AndroidConfigModel? _androidConfig;
+  static IosConfigModel? _iosConfig;
+
+  static BoolGetter? _shouldHandleNotification;
+
+  static NotificationIdGetter? _notificationIdGetter;
+  static OnActionGetter? _onAction;
+  static OnTapGetter? _onTap;
+  static RemoteMessageGetter? _messageModifier;
+  static FcmInitializeGetter? _onFCMTokenInitialize;
+  static FcmUpdateGetter? _onFCMTokenUpdate;
+
+  static OnOpenNotificationArrive? _onOpenNotificationArrive;
 
   static Future<void> _createAndroidNotificationChannel(
     AndroidNotificationChannel channel,
@@ -524,7 +550,7 @@ class _HighQNotificationsState extends State<HighQNotifications> {
     String? androidNotificationIcon,
     bool forceInit = false,
   }) async {
-    await  ServicesLocator.init();
+    await ServicesLocator.init();
     if (!forceInit && _flutterLocalNotificationsPlugin != null) return;
 
     _flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
@@ -542,7 +568,8 @@ class _HighQNotificationsState extends State<HighQNotifications> {
         requestAlertPermission: IosConfigModel.requestAlertPermission,
         requestBadgePermission: IosConfigModel.requestBadgePermission,
         requestSoundPermission: IosConfigModel.requestSoundPermission,
-        requestProvisionalPermission: IosConfigModel.requestProvisionalPermission,
+        requestProvisionalPermission:
+            IosConfigModel.requestProvisionalPermission,
         requestCriticalPermission: IosConfigModel.requestCriticalPermission,
         notificationCategories: IosConfigModel.defaultCategories,
       ),
@@ -563,8 +590,7 @@ class _HighQNotificationsState extends State<HighQNotifications> {
             );
             _onTap?.call(tapDetails);
             _notificationTapsSubscription.add(tapDetails);
-          }
-          else if (details.notificationResponseType ==
+          } else if (details.notificationResponseType ==
               NotificationResponseType.selectedNotificationAction) {
             // Action button tap
             if (_onAction != null) {
@@ -594,6 +620,12 @@ class _HighQNotificationsState extends State<HighQNotifications> {
     RemoteMessage message, {
     required AppState appState,
   }) async {
+    if (message.notification == null && message.data.isEmpty) {
+      if (kDebugMode) {
+        print('Empty notification received - ignoring');
+      }
+      return;
+    }
     final receivedMsg = message;
 
     if (_messageModifier != null) {
@@ -614,9 +646,7 @@ class _HighQNotificationsState extends State<HighQNotifications> {
     ************************************************************************ 
       Title: ${message.notification?.title}
       Body: ${message.notification?.body}
-      App State: ${appState.name}'''
-
-    ;
+      App State: ${appState.name}''';
 
     if (_messageModifier == null) {
       logMsg += '\nMessage: ${receivedMsg.toMap()}';
@@ -853,23 +883,123 @@ class _HighQNotificationsState extends State<HighQNotifications> {
     return '';
   }
 
-  static final _handledNotifications = <String>{};
+  // Track subscribed topics
+  static final Set<String> _subscribedTopics = {};
 
-  static bool _openedAppFromNotification = false;
+  // Topic subscription implementation
+  static Future<void> _subscribeToTopic({required String topic}) async {
+    try {
+      if (topic.isEmpty) {
+        throw ArgumentError('Topic cannot be empty');
+      }
 
-  static AndroidConfigModel? _androidConfig;
-  static IosConfigModel? _iosConfig;
+      if (HighQNotifications.enableLogs && kDebugMode) {
+        if (kDebugMode) {
+          print('Subscribing to topic: $topic');
+        }
+      }
 
-  static BoolGetter? _shouldHandleNotification;
+      await FirebaseMessaging.instance.subscribeToTopic(topic);
+      _subscribedTopics.add(topic);
 
-  static NotificationIdGetter? _notificationIdGetter;
-  static OnActionGetter? _onAction;
-  static OnTapGetter? _onTap;
-  static RemoteMessageGetter? _messageModifier;
-  static FcmInitializeGetter? _onFCMTokenInitialize;
-  static FcmUpdateGetter? _onFCMTokenUpdate;
+      if (HighQNotifications.enableLogs && kDebugMode) {
+        if (kDebugMode) {
+          print('Successfully subscribed to topic: $topic');
+        }
+      }
+    } catch (e, stack) {
+      if (kDebugMode) {
+        print('Failed to subscribe to topic $topic: $e\n$stack');
+      }
+      rethrow;
+    }
+  }
 
-  static OnOpenNotificationArrive? _onOpenNotificationArrive;
+  static Future<void> _unsubscribeFromTopic({required String topic}) async {
+    try {
+      if (topic.isEmpty) {
+        throw ArgumentError('Topic cannot be empty');
+      }
+
+      if (HighQNotifications.enableLogs && kDebugMode) {
+        if (kDebugMode) {
+          print('Unsubscribing from topic: $topic');
+        }
+      }
+
+      await FirebaseMessaging.instance.unsubscribeFromTopic(topic);
+      _subscribedTopics.remove(topic);
+
+      if (HighQNotifications.enableLogs && kDebugMode) {
+        if (kDebugMode) {
+          print('Successfully unsubscribed from topic: $topic');
+        }
+      }
+    } catch (e, stack) {
+      if (kDebugMode) {
+        print('Failed to unsubscribe from topic $topic: $e\n$stack');
+      }
+      rethrow;
+    }
+  }
+
+  static Future<void> _subscribeToTopics({required List<String> topics}) async {
+    try {
+      if (topics.isEmpty) {
+        throw ArgumentError('Topics list cannot be empty');
+      }
+
+      if (HighQNotifications.enableLogs && kDebugMode) {
+        if (kDebugMode) {
+          print('Subscribing to topics: $topics');
+        }
+      }
+
+      await Future.wait(topics.map((topic) => _subscribeToTopic(topic: topic)));
+
+      if (HighQNotifications.enableLogs && kDebugMode) {
+        if (kDebugMode) {
+          print('Successfully subscribed to topics: $topics');
+        }
+      }
+    } catch (e, stack) {
+      if (kDebugMode) {
+        print('Failed to subscribe to topics $topics: $e\n$stack');
+      }
+      rethrow;
+    }
+  }
+
+  static Future<void> _unsubscribeFromTopics({
+    required List<String> topics,
+  }) async {
+    try {
+      if (topics.isEmpty) {
+        throw ArgumentError('Topics list cannot be empty');
+      }
+
+      if (HighQNotifications.enableLogs && kDebugMode) {
+        if (kDebugMode) {
+          print('Unsubscribing from topics: $topics');
+        }
+      }
+
+      await Future.wait(
+        topics.map((topic) => _unsubscribeFromTopic(topic: topic)),
+      );
+
+      if (HighQNotifications.enableLogs && kDebugMode) {
+        if (kDebugMode) {
+          print('Successfully unsubscribed from topics: $topics');
+        }
+      }
+    } catch (e, stack) {
+      if (kDebugMode) {
+        print('Failed to unsubscribe from topics $topics: $e\n$stack');
+      }
+      rethrow;
+    }
+  }
 
   void _initVariables() {
     _onFCMTokenInitialize = widget.onFcmTokenInitialize;

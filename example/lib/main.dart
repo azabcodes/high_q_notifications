@@ -38,8 +38,28 @@ Future<void> main() async {
         debugShowCheckedModeBanner: false,
         navigatorKey: NavigationService().navigatorKey,
         scaffoldMessengerKey: NavigationService().scaffoldMessengerState,
-        home: Scaffold(appBar: AppBar(title: Text('High Q Notifications'))),
+        home: HomePage(),
       ),
     ),
   );
+}
+
+class HomePage extends StatefulWidget {
+  const HomePage({super.key});
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  @override
+  void initState() {
+    HighQNotifications.subscribeToTopic(topic: 'First');
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(appBar: AppBar(title: Text('High Q Notifications')));
+  }
 }
