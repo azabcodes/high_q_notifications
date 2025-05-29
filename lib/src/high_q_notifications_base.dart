@@ -542,8 +542,7 @@ class _HighQNotificationsState extends State<HighQNotifications> {
         requestAlertPermission: IosConfigModel.requestAlertPermission,
         requestBadgePermission: IosConfigModel.requestBadgePermission,
         requestSoundPermission: IosConfigModel.requestSoundPermission,
-        requestProvisionalPermission:
-            IosConfigModel.requestProvisionalPermission,
+        requestProvisionalPermission: IosConfigModel.requestProvisionalPermission,
         requestCriticalPermission: IosConfigModel.requestCriticalPermission,
         notificationCategories: IosConfigModel.defaultCategories,
       ),
