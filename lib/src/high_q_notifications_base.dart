@@ -250,6 +250,8 @@ class HighQNotifications extends StatefulWidget {
   static final subscribeToTopics = _HighQNotificationsState._subscribeToTopics;
   static final unsubscribeFromTopics =
       _HighQNotificationsState._unsubscribeFromTopics;
+  static const cancel = _HighQNotificationsState.cancel;
+  static const cancelAll = _HighQNotificationsState.cancelAll;
 
   @override
   State<HighQNotifications> createState() => _HighQNotificationsState();
@@ -1028,6 +1030,39 @@ class _HighQNotificationsState extends State<HighQNotifications> {
       rethrow;
     }
   }
+
+  static Future<void> cancel(int notificationId) async {
+    await _initializeLocalNotifications();
+    try {
+      await _flutterLocalNotificationsPlugin?.cancel(notificationId);
+      if (HighQNotifications.enableLogs && kDebugMode) {
+        if (kDebugMode) {
+          print('Notification with ID $notificationId cancelled');
+        }
+      }
+    } catch (e, s) {
+      if (kDebugMode) {
+        print('Failed to cancel notification $notificationId: $e\n$s');
+      }
+    }
+  }
+
+  static Future<void> cancelAll() async {
+    await _initializeLocalNotifications();
+    try {
+      await _flutterLocalNotificationsPlugin?.cancelAll();
+      if (HighQNotifications.enableLogs && kDebugMode) {
+        if (kDebugMode) {
+          print('All notifications cancelled');
+        }
+      }
+    } catch (e, s) {
+      if (kDebugMode) {
+        print('Failed to cancel all notifications: $e\n$s');
+      }
+    }
+  }
+
 
   void _initVariables() {
     _onFCMTokenInitialize = widget.onFcmTokenInitialize;

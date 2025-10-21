@@ -664,47 +664,60 @@ import 'notifications_type.dart';
 
 class HandleNotificationsNavigation {
   static void handleNotificationTap(NotificationInfoModel info) {
-    final payload = info.payload;
+    dynamic payload = info.payload;
+
+    if (payload is String && payload.isNotEmpty) {
+      try {
+        payload = jsonDecode(payload);
+      } catch (e) {
+        print( 'Error decoding payload JSON: \$e');
+        payload = {};
+      }
+    }
+
+    if (payload is Map) {
+      payload = payload.map((key, value) => MapEntry(key.toString(), value));
+    } else {
+      print( 'Invalid payload format');
+      payload = {};
+    }
+
     final appState = info.appState;
     final firebaseMessage = info.firebaseMessage.toMap();
 
-    if (payload['type'] != null) {
-      try {
-        final notificationType = NotificationsTypes.values.firstWhere(
-          (e) => e.toString().split('.').last == payload['type'],
-        );
+    print( 'Received payload: \$payload');
 
-        if (kDebugMode) {
-          print('Notification Type: \$notificationType');
-        }
-
-        switch (notificationType) {
-          case NotificationsTypes.notificationScreen:
-          /* SLServices.navigationLocator.toPage(
-              page: ScreenName(
-                id: int.tryParse(payload['id'])!,
-              ),
-            );*/
-        }
-      } catch (e) {
-        if (kDebugMode) {
-          print('Error parsing notification type: \$e');
-        }
-      }
+    final type = payload['type']?.toString();
+    if (type == null || type.isEmpty) {
+      print( 'No type found in payload');
+      return;
     }
 
-    for (var key in ['url', 'sound', 'image']) {
-      if (payload[key] != null) {
-        if (kDebugMode) {
-          print('\${key.toUpperCase()}: \${payload[key]}');
-        }
-      }
-    }
-    if (kDebugMode) {
-      print(
-        'Notification tapped with \$appState & payload \$payload. Firebase message: \$firebaseMessage',
+    try {
+      final notificationType = NotificationsTypes.values.firstWhere(
+        (e) => e.toString().split('.').last.toLowerCase() == type.toString().toLowerCase(),
+        orElse: () => NotificationsTypes.notificationScreen,
       );
+
+      print( 'Notification Type: \$notificationType');
+
+      switch (notificationType) {
+        case NotificationsTypes.notificationScreen:
+          final id = payload['id'];
+          if (id!= null) {
+           //Navigation
+          } else {
+            print( 'Missing borrowerId or addedByUid');
+          }
+
+      }
+    } catch (e) {
+      print('Error parsing notification type: \$e');
     }
+
+    print(
+          'Notification tapped with \$appState & payload \$payload. Firebase message: \$firebaseMessage',
+    );
   }
 }
 ''',
