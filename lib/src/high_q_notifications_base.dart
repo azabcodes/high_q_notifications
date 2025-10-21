@@ -30,7 +30,7 @@ void notificationTapBackground(NotificationResponse notificationResponse) {
     } else {
       _HighQNotificationsState._notificationHandler(
         message,
-        appState: AppState.background,
+        appState: HighQAppState.background,
       );
     }
   }
@@ -40,7 +40,7 @@ void notificationTapBackground(NotificationResponse notificationResponse) {
 Future<void> myBackgroundMessageHandler(RemoteMessage message) {
   return _HighQNotificationsState._notificationHandler(
     message,
-    appState: AppState.terminated,
+    appState: HighQAppState.terminated,
   );
 }
 
@@ -60,7 +60,7 @@ class HighQNotifications extends StatefulWidget {
 
   final Future<void> Function(FirebaseMessaging)? permissionGetter;
 
-  final LocalNotificationsConfigurationModel localNotificationsConfiguration;
+  final HighQConfigurationModel localNotificationsConfiguration;
 
   final BoolGetter? shouldHandleNotification;
 
@@ -91,7 +91,7 @@ class HighQNotifications extends StatefulWidget {
     this.requestPermissionsOnInitialize = true,
     this.permissionGetter,
     this.localNotificationsConfiguration =
-        const LocalNotificationsConfigurationModel(),
+        const HighQConfigurationModel(),
     required this.child,
   });
 
@@ -137,11 +137,11 @@ class HighQNotifications extends StatefulWidget {
     _HighQNotificationsState._messageModifier = messageModifier;
   }
 
-  static void setAndroidConfig(AndroidConfigModel? androidConfig) {
+  static void setAndroidConfig(HighQAndroidConfigModel? androidConfig) {
     _HighQNotificationsState._androidConfig = androidConfig;
   }
 
-  static void setIosConfig(IosConfigModel? iosConfig) {
+  static void setIosConfig(HighQIosConfigModel? iosConfig) {
     _HighQNotificationsState._iosConfig = iosConfig;
   }
 
@@ -227,20 +227,20 @@ class HighQNotifications extends StatefulWidget {
 
   /// {@template notificationTapsSubscription}
   ///
-  /// Stream of [NotificationInfoModel] which is triggered whenever a
+  /// Stream of [HighQNotificationInfoModel] which is triggered whenever a
   /// notification is tapped.
   ///
   /// {@endtemplate}
-  static Stream<NotificationInfoModel> get notificationTapsSubscription =>
+  static Stream<HighQNotificationInfoModel> get notificationTapsSubscription =>
       _HighQNotificationsState._notificationTapsSubscription.stream;
 
   /// {@template notificationArrivesSubscription}
   ///
-  /// Stream of [NotificationInfoModel] which is triggered whenever a
+  /// Stream of [HighQNotificationInfoModel] which is triggered whenever a
   /// notification arrives, provided the app is in foreground.
   ///
   /// {@endtemplate}
-  static Stream<NotificationInfoModel> get notificationArrivesSubscription =>
+  static Stream<HighQNotificationInfoModel> get notificationArrivesSubscription =>
       _HighQNotificationsState._notificationArriveSubscription.stream;
 
   // Topic subscription methods following the same pattern
@@ -264,9 +264,9 @@ class _HighQNotificationsState extends State<HighQNotifications> {
 
   static StreamSubscription<String>? _fcmTokenStreamSubscription;
   static final _notificationTapsSubscription =
-      StreamController<NotificationInfoModel>.broadcast();
+      StreamController<HighQNotificationInfoModel>.broadcast();
   static final _notificationArriveSubscription =
-      StreamController<NotificationInfoModel>.broadcast();
+      StreamController<HighQNotificationInfoModel>.broadcast();
   static StreamSubscription<RemoteMessage>? _onMessageSubscription;
   static StreamSubscription<RemoteMessage>? _onMessageOpenedAppSubscription;
 
@@ -274,8 +274,8 @@ class _HighQNotificationsState extends State<HighQNotifications> {
 
   static bool _openedAppFromNotification = false;
 
-  static AndroidConfigModel? _androidConfig;
-  static IosConfigModel? _iosConfig;
+  static HighQAndroidConfigModel? _androidConfig;
+  static HighQIosConfigModel? _iosConfig;
 
   static BoolGetter? _shouldHandleNotification;
 
@@ -541,37 +541,37 @@ class _HighQNotificationsState extends State<HighQNotifications> {
   }
 
   static Future<void> _onMessage(RemoteMessage message) =>
-      _notificationHandler(message, appState: AppState.open);
+      _notificationHandler(message, appState: HighQAppState.open);
 
   static Future<void> _onMessageOpenedApp(RemoteMessage message) =>
-      _notificationHandler(message, appState: AppState.background);
+      _notificationHandler(message, appState: HighQAppState.background);
 
   static Future<void> _initializeLocalNotifications({
     String? androidNotificationIcon,
     bool forceInit = false,
   }) async {
-    await ServicesLocator.init();
+    await HighQServicesLocator.init();
     if (!forceInit && _flutterLocalNotificationsPlugin != null) return;
 
     _flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
 
     final initializationSettings = InitializationSettings(
       android: AndroidInitializationSettings(
-        androidNotificationIcon ?? AndroidConfigModel.defaultAppIcon,
+        androidNotificationIcon ?? HighQAndroidConfigModel.defaultAppIcon,
       ),
       iOS: DarwinInitializationSettings(
-        defaultPresentAlert: IosConfigModel.defaultPresentAlert,
-        defaultPresentBadge: IosConfigModel.defaultPresentBadge,
-        defaultPresentSound: IosConfigModel.defaultPresentSound,
-        defaultPresentBanner: IosConfigModel.defaultPresentBanner,
-        defaultPresentList: IosConfigModel.defaultPresentList,
-        requestAlertPermission: IosConfigModel.requestAlertPermission,
-        requestBadgePermission: IosConfigModel.requestBadgePermission,
-        requestSoundPermission: IosConfigModel.requestSoundPermission,
+        defaultPresentAlert: HighQIosConfigModel.defaultPresentAlert,
+        defaultPresentBadge: HighQIosConfigModel.defaultPresentBadge,
+        defaultPresentSound: HighQIosConfigModel.defaultPresentSound,
+        defaultPresentBanner: HighQIosConfigModel.defaultPresentBanner,
+        defaultPresentList: HighQIosConfigModel.defaultPresentList,
+        requestAlertPermission: HighQIosConfigModel.requestAlertPermission,
+        requestBadgePermission: HighQIosConfigModel.requestBadgePermission,
+        requestSoundPermission: HighQIosConfigModel.requestSoundPermission,
         requestProvisionalPermission:
-            IosConfigModel.requestProvisionalPermission,
-        requestCriticalPermission: IosConfigModel.requestCriticalPermission,
-        notificationCategories: IosConfigModel.defaultCategories,
+            HighQIosConfigModel.requestProvisionalPermission,
+        requestCriticalPermission: HighQIosConfigModel.requestCriticalPermission,
+        notificationCategories: HighQIosConfigModel.defaultCategories,
       ),
     );
 
@@ -614,11 +614,11 @@ class _HighQNotificationsState extends State<HighQNotifications> {
             message = RemoteMessage.fromMap({'data': safeMap});
           }
 
-          final appState = AppState.open;
+          final appState = HighQAppState.open;
 
           if (details.notificationResponseType ==
               NotificationResponseType.selectedNotification) {
-            final tapDetails = NotificationInfoModel(
+            final tapDetails = HighQNotificationInfoModel(
               appState: appState,
               firebaseMessage: message, rawData: safeMap,
             );
@@ -651,7 +651,7 @@ class _HighQNotificationsState extends State<HighQNotifications> {
   @pragma('vm:entry-point')
   static Future<void> _notificationHandler(
     RemoteMessage message, {
-    required AppState appState,
+    required HighQAppState appState,
   }) async {
     if (message.notification == null && message.data.isEmpty) {
       if (kDebugMode) {
@@ -704,12 +704,12 @@ class _HighQNotificationsState extends State<HighQNotifications> {
 
     if (shouldIgnoreNotification) return;
 
-    final notifInfo = NotificationInfoModel(
+    final notifInfo = HighQNotificationInfoModel(
       appState: appState,
       firebaseMessage: message, rawData: message.toMap(),
     );
 
-    if (appState == AppState.open) {
+    if (appState == HighQAppState.open) {
       StyleInformation? androidStyleInformation;
 
       final notificationId = _notificationIdGetter!(message);
@@ -733,7 +733,7 @@ class _HighQNotificationsState extends State<HighQNotifications> {
         }
 
         try {
-          notificationImageRes = await downloadImage(
+          notificationImageRes = await downloadHighQImage(
             url: imageUrl,
             fileName: '_image__${notificationId}_.png',
           );
@@ -749,7 +749,7 @@ class _HighQNotificationsState extends State<HighQNotifications> {
 
         if (iconUrl == null) return;
 
-        notificationIconRes = await downloadImage(
+        notificationIconRes = await downloadHighQImage(
           url: iconUrl,
           fileName: '_icon__${notificationId}_.png',
         );
@@ -815,7 +815,7 @@ class _HighQNotificationsState extends State<HighQNotifications> {
       final currAndroidAppIcon = _androidConfig!.appIconGetter(message);
 
       await _initializeLocalNotifications(
-        forceInit: currAndroidAppIcon != AndroidConfigModel.defaultAppIcon,
+        forceInit: currAndroidAppIcon != HighQAndroidConfigModel.defaultAppIcon,
         androidNotificationIcon: currAndroidAppIcon,
       );
 
@@ -1035,9 +1035,9 @@ class _HighQNotificationsState extends State<HighQNotifications> {
 
     _androidConfig =
         widget.localNotificationsConfiguration.androidConfig ??
-        AndroidConfigModel();
+        HighQAndroidConfigModel();
     _iosConfig =
-        widget.localNotificationsConfiguration.iosConfig ?? IosConfigModel();
+        widget.localNotificationsConfiguration.iosConfig ?? HighQIosConfigModel();
 
     _onTap = widget.onTap;
     _onAction = widget.onAction;

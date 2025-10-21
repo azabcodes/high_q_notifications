@@ -1,18 +1,18 @@
 import 'package:equatable/equatable.dart';
 
-abstract class Failure extends Equatable {
+abstract class HighQFailure extends Equatable {
   final String message;
 
-  const Failure({required this.message});
+  const HighQFailure({required this.message});
 
   @override
   List<Object?> get props => [message];
 }
 
-class RequestSourceFailure extends Failure {
-  const RequestSourceFailure({required super.message});
+class HighQRequestSourceFailure extends HighQFailure {
+  const HighQRequestSourceFailure({required super.message});
 }
 
-class ApiFailure extends Failure {
-  const ApiFailure({required super.message});
+class HighQApiFailure extends HighQFailure {
+  const HighQApiFailure({required super.message});
 }

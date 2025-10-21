@@ -2,16 +2,16 @@ import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
 import '../../high_q_notifications.dart';
 
-final GetIt sl = GetIt.instance;
+final GetIt highQSl = GetIt.instance;
 
-class ServicesLocator {
+class HighQServicesLocator {
   static Future<void> init() async {
-    if (!sl.isRegistered<Dio>()) {
-      sl.registerLazySingleton<Dio>(() => Dio());
+    if (!highQSl.isRegistered<Dio>()) {
+      highQSl.registerLazySingleton<Dio>(() => Dio());
     }
 
-    if (!sl.isRegistered<ApiClient>()) {
-      sl.registerLazySingleton<ApiClient>(() => ApiClient(client: sl()));
+    if (!highQSl.isRegistered<HighQApiClient>()) {
+      highQSl.registerLazySingleton<HighQApiClient>(() => HighQApiClient(client: highQSl()));
     }
   }
 }

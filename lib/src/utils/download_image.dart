@@ -6,9 +6,9 @@ import 'package:path_provider/path_provider.dart';
 import '../../high_q_notifications.dart';
 
 @pragma('vm:entry-point')
-Future<String?> downloadImage({String? url, String? fileName}) async {
+Future<String?> downloadHighQImage({String? url, String? fileName}) async {
   if (url != null) {
-    final DioEither response = await sl<ApiClient>().get(
+    final DioEither response = await highQSl<HighQApiClient>().get(
       endPoint: url,
       options: Options(responseType: ResponseType.bytes),
     );
@@ -20,7 +20,7 @@ Future<String?> downloadImage({String? url, String? fileName}) async {
     response.fold(
       (l) {
         return Future.error(l.message).then((value) {
-          throw RequestSourceFailure(
+          throw HighQRequestSourceFailure(
             message: 'Error in Download sound: An unexpected error occurred.',
           );
         });

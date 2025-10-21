@@ -1,7 +1,7 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
 import '../../high_q_notifications.dart';
 
-class IosConfigModel {
+class HighQIosConfigModel {
   late IosCategoryGetter? categoryGetter;
   static List<DarwinNotificationCategory> defaultCategories = [];
 
@@ -72,7 +72,7 @@ class IosConfigModel {
 
   late IosNotificationAttachmentClippingRectGetter? thumbnailClippingRectGetter;
 
-  IosConfigModel({
+  HighQIosConfigModel({
     NullableStringGetter? soundGetter,
     NullableStringGetter? subtitleGetter,
     NullableStringGetter? imageUrlGetter,

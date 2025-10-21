@@ -1,7 +1,7 @@
 import 'dart:typed_data';
 
 /// Flags for Android notifications as per https://developer.android.com/reference/android/app/Notification#flags
-enum AndroidNotificationFlag {
+enum HighQAndroidNotificationFlag {
   /// The notification sound will repeat until the user interacts with the notification.
   insistent(1),
 
@@ -37,10 +37,10 @@ enum AndroidNotificationFlag {
 
   final int value;
 
-  const AndroidNotificationFlag(this.value);
+  const HighQAndroidNotificationFlag(this.value);
 }
 
-Int32List flagsToInt32List(List<AndroidNotificationFlag> flags) {
+Int32List flagsToInt32List(List<HighQAndroidNotificationFlag> flags) {
   int combinedValue = 0;
   for (var flag in flags) {
     combinedValue |= flag.value;

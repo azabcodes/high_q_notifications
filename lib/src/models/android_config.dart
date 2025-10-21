@@ -3,7 +3,7 @@ import 'dart:ui';
 import '../../high_q_notifications.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 
-class AndroidConfigModel {
+class HighQAndroidConfigModel {
   late AndroidActionsGetter? actionsGetter;
 
   static String defaultChannelId = 'default';
@@ -110,7 +110,7 @@ class AndroidConfigModel {
   late NullableInt64ListGetter vibrationPatternGetter;
   late BoolGetter channelShowBadgeGetter;
 
-  AndroidConfigModel({
+  HighQAndroidConfigModel({
     StringGetter? channelIdGetter,
     StringGetter? channelNameGetter,
     StringGetter? channelDescriptionGetter,

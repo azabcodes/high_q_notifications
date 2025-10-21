@@ -6,10 +6,10 @@ import 'package:flutter/foundation.dart';
 
 import '../../high_q_notifications.dart';
 
-class ApiClient extends BaseClient {
+class HighQApiClient extends HighQBaseClient {
   final Dio client;
 
-  ApiClient({required this.client}) {
+  HighQApiClient({required this.client}) {
     if (!kIsWeb) {
       _setupHttpClientAdapter();
     }
@@ -62,7 +62,7 @@ class ApiClient extends BaseClient {
       final errorMessage = error is Exception
           ? error.toString()
           : "An unexpected error occurred";
-      return Left(ApiFailure(message: errorMessage));
+      return Left(HighQApiFailure(message: errorMessage));
     }
   }
 }

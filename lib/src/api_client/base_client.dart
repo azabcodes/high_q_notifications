@@ -3,7 +3,7 @@ import 'package:dio/dio.dart';
 import '../../high_q_notifications.dart';
 
 
-abstract class BaseClient {
+abstract class HighQBaseClient {
   FutureEither<Response> get({
     required String endPoint,
     Object? body,

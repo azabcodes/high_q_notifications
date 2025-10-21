@@ -1,1 +1,1 @@
-enum AppState { open, background, terminated }
+enum HighQAppState { open, background, terminated }

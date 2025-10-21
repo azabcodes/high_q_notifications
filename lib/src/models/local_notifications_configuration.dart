@@ -1,14 +1,14 @@
 
 import '../../high_q_notifications.dart';
 
-class LocalNotificationsConfigurationModel {
-  final AndroidConfigModel? androidConfig;
+class HighQConfigurationModel {
+  final HighQAndroidConfigModel? androidConfig;
 
-  final IosConfigModel? iosConfig;
+  final HighQIosConfigModel? iosConfig;
 
   final NotificationIdGetter? notificationIdGetter;
 
-  const LocalNotificationsConfigurationModel({
+  const HighQConfigurationModel({
     this.androidConfig,
     this.iosConfig,
     this.notificationIdGetter,

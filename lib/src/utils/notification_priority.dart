@@ -1,4 +1,4 @@
-enum HighQNotificationsPriority {
+enum HighQPriority {
   min,
   low,
   defaultPriority,
