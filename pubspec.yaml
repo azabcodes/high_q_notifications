@@ -5,7 +5,7 @@ description:
   and offers utilities for timezone management and dependency injection.
 
 
-version: 2.0.5
+version: 2.0.6
 homepage: https://github.com/azabcodes/high_q_notifications
 issue_tracker: https://github.com/azabcodes/high_q_notifications/issues
 
