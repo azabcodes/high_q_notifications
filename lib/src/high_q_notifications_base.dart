@@ -581,24 +581,40 @@ class _HighQNotificationsState extends State<HighQNotifications> {
         onDidReceiveBackgroundNotificationResponse: notificationTapBackground,
         onDidReceiveNotificationResponse: (details) {
           if (details.payload == null) return;
-          final message = RemoteMessage.fromMap(jsonDecode(details.payload!));
-          if (details.notificationResponseType ==
-              NotificationResponseType.selectedNotification) {
-            final tapDetails = NotificationInfoModel(
-              appState: AppState.open,
-              firebaseMessage: message,
-            );
-            _onTap?.call(tapDetails);
-            _notificationTapsSubscription.add(tapDetails);
-          } else if (details.notificationResponseType ==
-              NotificationResponseType.selectedNotificationAction) {
-            // Action button tap
-            if (_onAction != null) {
-              _onAction!(details, message);
+          try {
+            final decoded = jsonDecode(details.payload!);
+            RemoteMessage? message;
+            Map<String, dynamic>? payload;
+            if (decoded is Map<String, dynamic> &&
+                decoded['notification'] == null) {
+              payload = decoded;
+              message = const RemoteMessage();
             } else {
-              if (kDebugMode) {
-                print('Action ${details.actionId} tapped');
+              message = RemoteMessage.fromMap(decoded);
+              payload = message.data;
+            }
+            if (details.notificationResponseType ==
+                NotificationResponseType.selectedNotification) {
+              final tapDetails = NotificationInfoModel(
+                appState: AppState.open,
+                firebaseMessage: message,
+                payload: payload,
+              );
+              _onTap?.call(tapDetails);
+              _notificationTapsSubscription.add(tapDetails);
+            } else if (details.notificationResponseType ==
+                NotificationResponseType.selectedNotificationAction) {
+              if (_onAction != null) {
+                _onAction!(details, message);
+              } else {
+                if (kDebugMode) {
+                  print('Action ${details.actionId} tapped');
+                }
               }
+            }
+          } catch (e, s) {
+            if (kDebugMode) {
+              print('Error decoding payload: $e\n$s');
             }
           }
         },
