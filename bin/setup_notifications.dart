@@ -661,7 +661,7 @@ final IosConfigModel iosConfig = IosConfigModel(
 import 'package:flutter/foundation.dart';
 import 'package:high_q_notifications/high_q_notifications.dart';
 import 'notifications_type.dart';
-
+import 'dart:convert';
 class HandleNotificationsNavigation {
   static void handleNotificationTap(NotificationInfoModel info) {
     dynamic payload = info.payload;
