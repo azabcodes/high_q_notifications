@@ -4,7 +4,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:high_q_notifications/high_q_notifications.dart';
 
-final AndroidConfigModel androidConfig = AndroidConfigModel(
+final HighQAndroidConfigModel androidConfig = HighQAndroidConfigModel(
   channelIdGetter: (RemoteMessage remoteMessage) {
     return 'my_channel_id';
   },

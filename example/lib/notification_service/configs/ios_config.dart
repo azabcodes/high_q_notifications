@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:high_q_notifications/high_q_notifications.dart';
 
-final IosConfigModel iosConfig = IosConfigModel(
+final HighQIosConfigModel iosConfig = HighQIosConfigModel(
   presentSoundGetter: (RemoteMessage remoteMessage) {
     return true;
   },
@@ -11,7 +11,7 @@ final IosConfigModel iosConfig = IosConfigModel(
   },
   categoryGetter: (RemoteMessage message) {
     final data = message.data['categories'];
-    if (data == null) return IosConfigModel.defaultCategories;
+    if (data == null) return HighQIosConfigModel.defaultCategories;
 
     final decoded = jsonDecode(data) as List<dynamic>;
 

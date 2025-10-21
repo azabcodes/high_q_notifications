@@ -532,7 +532,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:high_q_notifications/high_q_notifications.dart';
 
-final AndroidConfigModel androidConfig = AndroidConfigModel(
+final HighQAndroidConfigModel androidConfig = HighQAndroidConfigModel(
   channelIdGetter: (RemoteMessage remoteMessage) {
     return 'my_channel_id';
   },
@@ -609,7 +609,7 @@ import 'dart:convert';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:high_q_notifications/high_q_notifications.dart';
 
-final IosConfigModel iosConfig = IosConfigModel(
+final HighQIosConfigModel iosConfig = HighQIosConfigModel(
   presentSoundGetter: (RemoteMessage remoteMessage) {
     return true;
   },
@@ -618,7 +618,7 @@ final IosConfigModel iosConfig = IosConfigModel(
   },
   categoryGetter: (RemoteMessage message) {
     final data = message.data['categories'];
-    if (data == null) return IosConfigModel.defaultCategories;
+    if (data == null) return HighQIosConfigModel.defaultCategories;
 
     final decoded = jsonDecode(data) as List<dynamic>;
 
@@ -658,19 +658,23 @@ final IosConfigModel iosConfig = IosConfigModel(
 ''',
 
     '$basePath/utils/handle_navigation.dart': '''
+import 'dart:convert';
+
 import 'package:flutter/foundation.dart';
 import 'package:high_q_notifications/high_q_notifications.dart';
 import 'notifications_type.dart';
-import 'dart:convert';
+
 class HandleNotificationsNavigation {
-  static void handleNotificationTap(NotificationInfoModel info) {
+  static void handleNotificationTap(HighQNotificationInfoModel info) {
     dynamic payload = info.payload;
 
     if (payload is String && payload.isNotEmpty) {
       try {
         payload = jsonDecode(payload);
       } catch (e) {
-        print( 'Error decoding payload JSON: \$e');
+        if (kDebugMode) {
+          print('Error decoding payload JSON: \$e');
+        }
         payload = {};
       }
     }
@@ -678,46 +682,61 @@ class HandleNotificationsNavigation {
     if (payload is Map) {
       payload = payload.map((key, value) => MapEntry(key.toString(), value));
     } else {
-      print( 'Invalid payload format');
+      if (kDebugMode) {
+        print('Invalid payload format');
+      }
       payload = {};
     }
 
     final appState = info.appState;
     final firebaseMessage = info.firebaseMessage.toMap();
 
-    print( 'Received payload: \$payload');
+    if (kDebugMode) {
+      print('Received payload: \$payload');
+    }
 
     final type = payload['type']?.toString();
     if (type == null || type.isEmpty) {
-      print( 'No type found in payload');
+      if (kDebugMode) {
+        print('No type found in payload');
+      }
       return;
     }
 
     try {
       final notificationType = NotificationsTypes.values.firstWhere(
-        (e) => e.toString().split('.').last.toLowerCase() == type.toString().toLowerCase(),
+        (e) =>
+            e.toString().split('.').last.toLowerCase() ==
+            type.toString().toLowerCase(),
         orElse: () => NotificationsTypes.notificationScreen,
       );
 
-      print( 'Notification Type: \$notificationType');
+      if (kDebugMode) {
+        print('Notification Type: \$notificationType');
+      }
 
       switch (notificationType) {
         case NotificationsTypes.notificationScreen:
           final id = payload['id'];
-          if (id!= null) {
-           //Navigation
+          if (id != null) {
+            //Navigation
           } else {
-            print( 'Missing borrowerId or addedByUid');
+            if (kDebugMode) {
+              print('Missing borrowerId or addedByUid');
+            }
           }
-
       }
     } catch (e) {
-      print('Error parsing notification type: \$e');
+      if (kDebugMode) {
+        print('Error parsing notification type: \$e');
+      }
     }
 
-    print(
-          'Notification tapped with \$appState & payload \$payload. Firebase message: \$firebaseMessage',
+    if (kDebugMode) {
+      print(
+      'Notification tapped with \$appState & payload \$payload. Firebase message: \$firebaseMessage',
     );
+    }
   }
 }
 ''',
@@ -789,7 +808,7 @@ class HandleNotificationsActions {
     NotificationResponse response,
     RemoteMessage message,
   ) {
-    final actionInfo = NotificationActionInfoModel(
+    final actionInfo = HighQNotificationActionInfoModel(
       appState: _getAppState(response),
       firebaseMessage: message,
       response: response,
@@ -814,15 +833,15 @@ class HandleNotificationsActions {
     }
   }
 
-  static AppState _getAppState(NotificationResponse response) {
+  static HighQAppState _getAppState(NotificationResponse response) {
     if (response.notificationResponseType ==
         NotificationResponseType.selectedNotificationAction) {
       // For background actions, we need to determine if the app was in background or terminated
       return PlatformDispatcher.instance.platformBrightness == Brightness.dark
-          ? AppState.background
-          : AppState.terminated;
+          ? HighQAppState.background
+          : HighQAppState.terminated;
     }
-    return AppState.open;
+    return HighQAppState.open;
   }
 }
 ''';

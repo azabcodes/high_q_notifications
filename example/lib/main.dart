@@ -19,7 +19,7 @@ Future<void> main() async {
   runApp(
     HighQNotifications(
       requestPermissionsOnInitialize: true,
-      localNotificationsConfiguration: LocalNotificationsConfigurationModel(
+      localNotificationsConfiguration: HighQConfigurationModel(
         androidConfig: androidConfig,
         iosConfig: iosConfig,
       ),

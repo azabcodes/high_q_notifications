@@ -7,7 +7,7 @@ class HandleNotificationsActions {
     NotificationResponse response,
     RemoteMessage message,
   ) {
-    final actionInfo = NotificationActionInfoModel(
+    final actionInfo = HighQNotificationActionInfoModel(
       appState: _getAppState(response),
       firebaseMessage: message,
       response: response,
@@ -32,14 +32,14 @@ class HandleNotificationsActions {
     }
   }
 
-  static AppState _getAppState(NotificationResponse response) {
+  static HighQAppState _getAppState(NotificationResponse response) {
     if (response.notificationResponseType ==
         NotificationResponseType.selectedNotificationAction) {
       // For background actions, we need to determine if the app was in background or terminated
       return PlatformDispatcher.instance.platformBrightness == Brightness.dark
-          ? AppState.background
-          : AppState.terminated;
+          ? HighQAppState.background
+          : HighQAppState.terminated;
     }
-    return AppState.open;
+    return HighQAppState.open;
   }
 }

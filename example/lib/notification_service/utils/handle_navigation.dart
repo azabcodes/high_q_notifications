@@ -5,7 +5,7 @@ import 'package:high_q_notifications/high_q_notifications.dart';
 import 'notifications_type.dart';
 
 class HandleNotificationsNavigation {
-  static void handleNotificationTap(NotificationInfoModel info) {
+  static void handleNotificationTap(HighQNotificationInfoModel info) {
     dynamic payload = info.payload;
 
     if (payload is String && payload.isNotEmpty) {
