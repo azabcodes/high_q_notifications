@@ -579,20 +579,53 @@ class _HighQNotificationsState extends State<HighQNotifications> {
       await _flutterLocalNotificationsPlugin!.initialize(
         initializationSettings,
         onDidReceiveBackgroundNotificationResponse: notificationTapBackground,
-        onDidReceiveNotificationResponse: (details) {
-          if (details.payload == null) return;
-          final message = RemoteMessage.fromMap(jsonDecode(details.payload!));
+        onDidReceiveNotificationResponse: (details) async {
+          if (details.payload == null || details.payload!.isEmpty) return;
+
+          dynamic decoded;
+          try {
+            decoded = jsonDecode(details.payload!);
+          } catch (e) {
+            if (kDebugMode) {
+              print('Invalid payload JSON: $e');
+            }
+            decoded = {};
+          }
+
+          Map<String, dynamic> safeMap = {};
+          if (decoded is Map) {
+            safeMap = decoded.map(
+              (key, value) => MapEntry(key.toString(), value),
+            );
+          }
+
+          RemoteMessage message;
+          try {
+            if (safeMap.containsKey('messageId') ||
+                safeMap.containsKey('data')) {
+              message = RemoteMessage.fromMap(safeMap);
+            } else {
+              message = RemoteMessage.fromMap({'data': safeMap});
+            }
+          } catch (e) {
+            if (kDebugMode) {
+              print('Failed to parse RemoteMessage: $e');
+            }
+            message = RemoteMessage.fromMap({'data': safeMap});
+          }
+
+          final appState = AppState.open;
+
           if (details.notificationResponseType ==
               NotificationResponseType.selectedNotification) {
             final tapDetails = NotificationInfoModel(
-              appState: AppState.open,
+              appState: appState,
               firebaseMessage: message,
             );
             _onTap?.call(tapDetails);
             _notificationTapsSubscription.add(tapDetails);
           } else if (details.notificationResponseType ==
               NotificationResponseType.selectedNotificationAction) {
-            // Action button tap
             if (_onAction != null) {
               _onAction!(details, message);
             } else {
