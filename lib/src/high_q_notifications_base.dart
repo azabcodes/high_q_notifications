@@ -620,7 +620,7 @@ class _HighQNotificationsState extends State<HighQNotifications> {
               NotificationResponseType.selectedNotification) {
             final tapDetails = NotificationInfoModel(
               appState: appState,
-              firebaseMessage: message,
+              firebaseMessage: message, rawData: safeMap,
             );
             _onTap?.call(tapDetails);
             _notificationTapsSubscription.add(tapDetails);
@@ -706,7 +706,7 @@ class _HighQNotificationsState extends State<HighQNotifications> {
 
     final notifInfo = NotificationInfoModel(
       appState: appState,
-      firebaseMessage: message,
+      firebaseMessage: message, rawData: message.toMap(),
     );
 
     if (appState == AppState.open) {
