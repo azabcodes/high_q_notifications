@@ -90,8 +90,7 @@ class HighQNotifications extends StatefulWidget {
     this.handleInitialMessage = true,
     this.requestPermissionsOnInitialize = true,
     this.permissionGetter,
-    this.localNotificationsConfiguration =
-        const HighQConfigurationModel(),
+    this.localNotificationsConfiguration = const HighQConfigurationModel(),
     required this.child,
   });
 
@@ -240,7 +239,8 @@ class HighQNotifications extends StatefulWidget {
   /// notification arrives, provided the app is in foreground.
   ///
   /// {@endtemplate}
-  static Stream<HighQNotificationInfoModel> get notificationArrivesSubscription =>
+  static Stream<HighQNotificationInfoModel>
+  get notificationArrivesSubscription =>
       _HighQNotificationsState._notificationArriveSubscription.stream;
 
   // Topic subscription methods following the same pattern
@@ -307,7 +307,7 @@ class _HighQNotificationsState extends State<HighQNotifications> {
         ?.resolvePlatformSpecificImplementation<
           AndroidFlutterLocalNotificationsPlugin
         >()
-        ?.deleteNotificationChannel(channelId);
+        ?.deleteNotificationChannel(channelId: channelId);
   }
 
   static Future<void> createAndroidNotificationChannel(
@@ -395,7 +395,7 @@ class _HighQNotificationsState extends State<HighQNotifications> {
         ?.resolvePlatformSpecificImplementation<
           AndroidFlutterLocalNotificationsPlugin
         >()
-        ?.deleteNotificationChannelGroup(groupId);
+        ?.deleteNotificationChannelGroup(groupId: groupId);
   }
 
   static Future<List<AndroidNotificationChannel>?>
@@ -441,11 +441,11 @@ class _HighQNotificationsState extends State<HighQNotifications> {
         );
 
         await _flutterLocalNotificationsPlugin!.periodicallyShowWithDuration(
-          id,
-          title,
-          body,
-          repeatDurationInterval,
-          notificationDetails,
+          id: id,
+          title: title,
+          body: body,
+          repeatDurationInterval: repeatDurationInterval,
+          notificationDetails: notificationDetails,
           androidScheduleMode: androidScheduleMode!,
           payload: payloadStr,
         );
@@ -456,11 +456,11 @@ class _HighQNotificationsState extends State<HighQNotifications> {
         );
 
         await _flutterLocalNotificationsPlugin!.periodicallyShow(
-          id,
-          title,
-          body,
-          repeatInterval,
-          notificationDetails,
+          id: id,
+          title: title,
+          body: body,
+          repeatInterval: repeatInterval,
+          notificationDetails: notificationDetails,
           payload: payloadStr,
           androidScheduleMode: androidScheduleMode!,
         );
@@ -470,21 +470,21 @@ class _HighQNotificationsState extends State<HighQNotifications> {
           'androidScheduleMode cannot be null when scheduledDateTime is not null',
         );
         await _flutterLocalNotificationsPlugin!.zonedSchedule(
-          id,
-          title,
-          body,
-          scheduledDateTime,
-          notificationDetails,
+          id: id,
+          title: title,
+          body: body,
+          scheduledDate: scheduledDateTime,
+          notificationDetails: notificationDetails,
           payload: payloadStr,
           androidScheduleMode: androidScheduleMode!,
           matchDateTimeComponents: matchDateTimeComponents,
         );
       } else {
         await _flutterLocalNotificationsPlugin!.show(
-          id,
-          title,
-          body,
-          notificationDetails,
+          id: id,
+          title: title,
+          body: body,
+          notificationDetails: notificationDetails,
           payload: payloadStr,
         );
       }
@@ -572,14 +572,15 @@ class _HighQNotificationsState extends State<HighQNotifications> {
         requestSoundPermission: HighQIosConfigModel.requestSoundPermission,
         requestProvisionalPermission:
             HighQIosConfigModel.requestProvisionalPermission,
-        requestCriticalPermission: HighQIosConfigModel.requestCriticalPermission,
+        requestCriticalPermission:
+            HighQIosConfigModel.requestCriticalPermission,
         notificationCategories: HighQIosConfigModel.defaultCategories,
       ),
     );
 
     try {
       await _flutterLocalNotificationsPlugin!.initialize(
-        initializationSettings,
+        settings: initializationSettings,
         onDidReceiveBackgroundNotificationResponse: notificationTapBackground,
         onDidReceiveNotificationResponse: (details) async {
           if (details.payload == null || details.payload!.isEmpty) return;
@@ -622,7 +623,8 @@ class _HighQNotificationsState extends State<HighQNotifications> {
               NotificationResponseType.selectedNotification) {
             final tapDetails = HighQNotificationInfoModel(
               appState: appState,
-              firebaseMessage: message, rawData: safeMap,
+              firebaseMessage: message,
+              rawData: safeMap,
             );
             _onTap?.call(tapDetails);
             _notificationTapsSubscription.add(tapDetails);
@@ -708,7 +710,8 @@ class _HighQNotificationsState extends State<HighQNotifications> {
 
     final notifInfo = HighQNotificationInfoModel(
       appState: appState,
-      firebaseMessage: message, rawData: message.toMap(),
+      firebaseMessage: message,
+      rawData: message.toMap(),
     );
 
     if (appState == HighQAppState.open) {
@@ -1034,7 +1037,7 @@ class _HighQNotificationsState extends State<HighQNotifications> {
   static Future<void> cancel(int notificationId) async {
     await _initializeLocalNotifications();
     try {
-      await _flutterLocalNotificationsPlugin?.cancel(notificationId);
+      await _flutterLocalNotificationsPlugin?.cancel(id: notificationId);
       if (HighQNotifications.enableLogs && kDebugMode) {
         if (kDebugMode) {
           print('Notification with ID $notificationId cancelled');
@@ -1063,7 +1066,6 @@ class _HighQNotificationsState extends State<HighQNotifications> {
     }
   }
 
-
   void _initVariables() {
     _onFCMTokenInitialize = widget.onFcmTokenInitialize;
     _onFCMTokenUpdate = widget.onFcmTokenUpdate;
@@ -1072,7 +1074,8 @@ class _HighQNotificationsState extends State<HighQNotifications> {
         widget.localNotificationsConfiguration.androidConfig ??
         HighQAndroidConfigModel();
     _iosConfig =
-        widget.localNotificationsConfiguration.iosConfig ?? HighQIosConfigModel();
+        widget.localNotificationsConfiguration.iosConfig ??
+        HighQIosConfigModel();
 
     _onTap = widget.onTap;
     _onAction = widget.onAction;
